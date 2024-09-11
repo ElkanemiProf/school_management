@@ -1,0 +1,16 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Upload Class List</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="file">Upload Class List (CSV)</label>
+            <input type="file" name="file" id="file" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
+    
+</div>
+{% endblock %}

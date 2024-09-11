@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ student.first_name }}'s Report</title>
+</head>
+<body>
+    <h1>Report for {{ student.first_name }} {{ student.last_name }}</h1>
+    <h2>Class: {{ student.school_class }}</h2>
+    <table border="1">
+        <tr>
+            <th>Subject</th>
+            <th>Term</th>
+            <th>Score</th>
+            <th>Grade</th>
+        </tr>
+        {% for grade in grades %}
+        <tr>
+            <td>{{ grade.subject.name }}</td>
+            <td>{{ grade.term }}</td>
+            <td>{{ grade.score }}</td>
+            <td>{{ grade.grade }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <p><strong>Average Score:</strong> {{ average_score }}</p>
+    <p><strong>Class Position:</strong> {{ class_position }}</p>
+</body>
+</html>

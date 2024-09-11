@@ -1,0 +1,41 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="content-wrapper">
+    <h4 class="card-title">Students in Class {{ school_class.level }} {{ school_class.section }}</h4>
+    
+    <!-- Buttons for adding a new student, exporting, and uploading the class list -->
+    <div class="mb-4">
+        <a href="{{ add_student_url }}" class="btn btn-primary">Add New Student</a>
+        <a href="{{ export_excel_url }}" class="btn btn-secondary">Export Class List</a>
+        <a href="{% url 'upload_class_list' class_id=school_class.id %}" class="btn btn-info">Upload Class List</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td>{{ student.first_name }}</td>
+                    <td>{{ student.last_name }}</td>
+                    <td>
+                        <a href="{% url 'update_student' class_id=school_class.id pk=student.pk %}" class="btn btn-warning btn-sm">Modify</a>
+                        <form action="{% url 'delete_student' class_id=school_class.id student_id=student.pk %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+<!-- teacher_list.html -->
+
+{% extends 'main/base.html' %}
+
+{% block title %}Teachers{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <h2 class="mb-4">Teachers</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Teacher Name</th>
+                    <th>Subjects</th>
+                    <th>Classes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for teacher in teachers %}
+                <tr>
+                    <!-- Display the full name of the teacher -->
+                    <td>{{ teacher.user.first_name }} {{ teacher.user.last_name }}</td>
+
+                    <!-- Display the subjects taught by the teacher -->
+                    <td>
+                        {% for subject in teacher.subject_taught.all %}
+                            {{ subject.name }} ({{ subject.level }})<br>
+                        {% endfor %}
+                    </td>
+
+                    <!-- Display the classes taught by the teacher -->
+                    <td>
+                        {% for school_class in teacher.classes_taught.all %}
+                            {{ school_class.level }}{{ school_class.section }}<br>
+                        {% endfor %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock content %}

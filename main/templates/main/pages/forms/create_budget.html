@@ -1,0 +1,87 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Create Budget</h2>
+    <form method="post" action="{% url 'create_budget' %}" class="form-horizontal">
+        {% csrf_token %}
+        
+        <div class="form-group row mb-3">
+            <label for="{{ form.category.id_for_label }}" class="col-sm-2 col-form-label">{{ form.category.label }}</label>
+            <div class="col-sm-10">
+                {{ form.category }}
+                <!-- Display errors for this field -->
+                {% if form.category.errors %}
+                    <div class="text-danger">
+                        {% for error in form.category.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="form-group row mb-3">
+            <label for="{{ form.allocated_amount.id_for_label }}" class="col-sm-2 col-form-label">{{ form.allocated_amount.label }}</label>
+            <div class="col-sm-10">
+                {{ form.allocated_amount }}
+                <!-- Display errors for this field -->
+                {% if form.allocated_amount.errors %}
+                    <div class="text-danger">
+                        {% for error in form.allocated_amount.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="form-group row mb-3">
+            <label for="{{ form.spent_amount.id_for_label }}" class="col-sm-2 col-form-label">{{ form.spent_amount.label }}</label>
+            <div class="col-sm-10">
+                {{ form.spent_amount }}
+                <!-- Display errors for this field -->
+                {% if form.spent_amount.errors %}
+                    <div class="text-danger">
+                        {% for error in form.spent_amount.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="form-group row mb-3">
+            <label for="{{ form.description.id_for_label }}" class="col-sm-2 col-form-label">{{ form.description.label }}</label>
+            <div class="col-sm-10">
+                {{ form.description }}
+                <!-- Display errors for this field -->
+                {% if form.description.errors %}
+                    <div class="text-danger">
+                        {% for error in form.description.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="form-group row">
+            <div class="col-sm-10 offset-sm-2">
+                <button type="submit" class="btn btn-primary">Create Budget</button>
+                <!-- Add View Budgets Button -->
+                <a href="{% url 'budget_list' %}" class="btn btn-secondary ml-2">View Budgets</a>
+            </div>
+        </div>
+    </form>
+
+    <!-- Display non-field errors (errors not tied to a specific field) -->
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger mt-3">
+            {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

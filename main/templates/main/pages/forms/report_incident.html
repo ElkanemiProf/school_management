@@ -1,0 +1,29 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Report an Incident</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.incident_type.label_tag }} 
+            {{ form.incident_type }} 
+        </div>
+        <div class="mb-3">
+            {{ form.description.label_tag }} 
+            {{ form.description }} 
+        </div>
+        <div class="mb-3">
+            {{ form.location.label_tag }} 
+            {{ form.location }} 
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Report</button>
+    </form>
+
+    <!-- Add the View Incidents Button Below -->
+    <div class="mt-3">
+        <a href="{% url 'incident_list' %}" class="btn btn-secondary">View Incidents</a>
+    </div>
+</div>
+{% endblock %}
+

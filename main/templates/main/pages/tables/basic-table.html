@@ -1,0 +1,37 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="row">
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Hoverable School Classes</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Level</th>
+                                    <th>Section</th>
+                                    <th>Number of Students</th>
+                                    <th>Students</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for class in class_data %}
+                                <tr>
+                                    <td>{{ class.level }}</td>
+                                    <td>{{ class.section }}</td>
+                                    <td>{{ class.student_count }}</td>
+                                    <td><a class="badge badge-success"href="{{ class.view_students_url }}">View Students</a></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

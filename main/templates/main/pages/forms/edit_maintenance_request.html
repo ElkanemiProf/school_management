@@ -1,0 +1,23 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Edit Maintenance Request</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.description.label_tag }}
+            {{ form.description }}
+        </div>
+        <div class="mb-3">
+            {{ form.location.label_tag }}
+            {{ form.location }}
+        </div>
+        <div class="mb-3">
+            {{ form.status.label_tag }}
+            {{ form.status }}  <!-- This will render the dropdown for status -->
+        </div>
+        <button type="submit" class="btn btn-primary">Update Request</button>
+    </form>
+</div>
+{% endblock %}

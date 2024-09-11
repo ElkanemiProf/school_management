@@ -1,0 +1,33 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Subject Management{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <h2 class="mb-4">Subject Management</h2>
+
+        <!-- Add New Subject Button -->
+        <div class="mb-3">
+            <a href="{% url 'add_subject' %}" class="btn btn-success">Add New Subject</a>
+        </div>
+
+        <!-- Modify or Delete Existing Subjects -->
+        {% for subject in subjects %}
+        <div class="mb-3 d-flex align-items-center">
+            <div class="me-3">
+                <strong>{{ subject.name }}</strong> ({{ subject.level }}) - Code: {{ subject.code }}
+            </div>
+            <div class="ms-auto">
+                <a href="{% url 'modify_subject' subject.id %}" class="btn btn-warning me-2">Modify</a>
+                <form action="{% url 'delete_subject' subject.id %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+        <hr>
+        {% endfor %}
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,71 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Upload New Attendance{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h3 class="card-title mb-4">Upload New Attendance</h3>
+
+            <!-- Form for uploading attendance -->
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <!-- Teacher Dropdown -->
+                    <div class="col-md-6 mb-3">
+                        <label for="teacher" class="form-label">Teacher</label>
+                        <select id="teacher" name="teacher" class="form-control">
+                            <option value="" disabled selected>Select a teacher</option>
+                            {% for teacher in teachers %}
+                                <option value="{{ teacher.id }}">{{ teacher.user.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Class Name Input -->
+                    <div class="col-md-6 mb-3">
+                        <label for="class_name" class="form-label">Class Name</label>
+                        <input type="text" class="form-control" id="class_name" name="class_name" placeholder="Enter Class Name">
+                    </div>
+
+                    <!-- Subject Input -->
+                    <div class="col-md-6 mb-3">
+                        <label for="subject" class="form-label">Subject</label>
+                        <input type="text" class="form-control" id="subject" name="subject" placeholder="Enter Subject">
+                    </div>
+
+                    <!-- Attendance Date Input -->
+                    <div class="col-md-6 mb-3">
+                        <label for="attendance_date" class="form-label">Attendance Date</label>
+                        <input type="date" class="form-control" id="attendance_date" name="attendance_date">
+                    </div>
+
+                    <!-- Uploaded By Input -->
+                    <div class="col-md-6 mb-3">
+                        <label for="uploaded_by" class="form-label">Uploaded By</label>
+                        <input type="text" class="form-control" id="uploaded_by" name="uploaded_by" placeholder="Enter your name">
+                    </div>
+
+                    <!-- Remarks Textarea -->
+                    <div class="col-md-12 mb-3">
+                        <label for="remarks" class="form-label">Remarks</label>
+                        <select class="form-control" id="remarks" name="remarks">
+                            <option value="" disabled selected>Select a remark</option>
+                            <option value="was on time">Was on time</option>
+                            <option value="was late to class">Was late to class</option>
+                            <option value="didn't come at all">Didn't come at all</option>
+                            <option value="left before time">Left before time</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary">Upload Attendance</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

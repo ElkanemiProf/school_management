@@ -1,0 +1,101 @@
+<!-- _sidebar.html -->
+{% load static %}
+<nav class="sidebar sidebar-offcanvas" id="sidebar">
+    <ul class="nav">
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'dashboard' %}">
+                <i class="mdi mdi-grid-large menu-icon"></i>
+                <span class="menu-title">Dashboard</span>
+            </a>
+        </li>
+        
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">
+                <i class="menu-icon mdi mdi-floor-plan"></i>
+                <span class="menu-title">Students</span>
+                <i class="menu-arrow"></i>
+            </a>
+            <div class="collapse" id="ui-basic">
+                <ul class="nav flex-column sub-menu">
+                    <li class="nav-item"> <a class="nav-link" href="{% url 'student_distribution' %}">Student Distribution</a></li>
+                    <li class="nav-item"> <a class="nav-link" href="{% url 'hoverable_school_classes' %}">Class Distributions</a></li>
+                    <li class="nav-item"> <a class="nav-link" href="pages/ui-features/typography.html">Attendance</a></li>
+                </ul>
+            </div>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="collapse" href="#form-elements" aria-expanded="false" aria-controls="form-elements">
+                <i class="menu-icon mdi mdi-card-text-outline"></i>
+                <span class="menu-title">Teachers</span>
+                <i class="menu-arrow"></i>
+            </a>
+            <div class="collapse" id="form-elements">
+                <ul class="nav flex-column sub-menu">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'subject_list' %}">Subjects</a></li>
+
+                    <li class="nav-item"><a class="nav-link" href="{% url 'teacher_list' %}">Add/View Teacher</a></li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'attendance_image_list' %}">Attendance</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="collapse" href="#charts" aria-expanded="false" aria-controls="charts">
+                <i class="menu-icon mdi mdi-chart-line"></i>
+                <span class="menu-title">School Fees</span>
+                <i class="menu-arrow"></i>
+            </a>
+            <div class="collapse" id="charts">
+                <ul class="nav flex-column sub-menu">
+                    <li class="nav-item"> <a class="nav-link" href="{% url 'student_payment_status' %}">View Paid and Unpaid </a></li>
+                </ul>
+            </div>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="collapse" href="#tables" aria-expanded="false" aria-controls="tables">
+                <i class="menu-icon mdi mdi-table"></i>
+                <span class="menu-title">Reports</span>
+                <i class="menu-arrow"></i>
+            </a>
+            <div class="collapse" id="tables">
+                <ul class="nav flex-column sub-menu">
+                    <li class="nav-item"> <a class="nav-link" href="{% url 'report_incident' %}">Incidence Reports</a></li>
+                    <li class="nav-item"> <a class="nav-link" href="{% url 'maintenance_request_list' %}">Maintenance Requests</a></li>
+                </ul>
+            </div>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="collapse" href="#icons" aria-expanded="false" aria-controls="icons">
+                <i class="menu-icon mdi mdi-layers-outline"></i>
+                <span class="menu-title">Finance Mgt</span>
+                <i class="menu-arrow"></i>
+            </a>
+            <div class="collapse" id="icons">
+                <ul class="nav flex-column sub-menu">
+                    <li class="nav-item"> <a class="nav-link" href="{% url 'create_budget' %}">Budget</a></li>
+
+                    <li class="nav-item"> <a class="nav-link" href="pages/icons/font-awesome.html">Audit</a></li>
+                </ul>
+            </div>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="collapse" href="#auth" aria-expanded="false" aria-controls="auth">
+                <i class="menu-icon mdi mdi-account-circle-outline"></i>
+                <span class="menu-title">Events</span>
+                <i class="menu-arrow"></i>
+            </a>
+            <div class="collapse" id="auth">
+                <ul class="nav flex-column sub-menu">
+                    <li class="nav-item"> <a class="nav-link" href="{% url 'event_list' %}"> View Event </a></li>
+                    <li class="nav-item"> <a class="nav-link" href="{% url 'add_event' %}"> Add Event </a></li>
+                    
+                </ul>
+            </div>
+        </li>
+      
+        
+    </ul>
+</nav>

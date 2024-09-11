@@ -1,0 +1,53 @@
+{% extends "admin/change_list.html" %}
+
+{% block content %}
+    <h1>Student Grades</h1>
+
+    <!-- Search Form -->
+    <form method="get">
+        <input type="text" name="q" placeholder="Search for students..." value="{{ search_query }}">
+        <button type="submit">Search</button>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student, grades in student_grades.items %}
+                <tr>
+                    <td>{{ student.first_name }} {{ student.last_name }}</td>
+                    <td>
+                        <a href="{% url 'admin:export_student_excel' student.id %}">Export to Excel</a>
+                        <details>
+                            <summary>View Grades</summary>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th>Term</th>
+                                        <th>Score</th>
+                                        <th>Grade</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for grade in grades %}
+                                        <tr>
+                                            <td>{{ grade.subject.name }}</td>
+                                            <td>{{ grade.term }}</td>
+                                            <td>{{ grade.score }}</td>
+                                            <td>{{ grade.grade }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </details>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

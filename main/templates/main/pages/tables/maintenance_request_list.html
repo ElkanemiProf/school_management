@@ -1,0 +1,38 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="row justify-content-between mb-3">
+    <div class="col">
+        <h2 class="mb-4">Maintenance Request List</h2>
+    </div>
+    <div class="col-auto">
+        <a href="{% url 'maintenance_request_create' %}" class="btn btn-primary">Add Maintenance Request</a>
+    </div>
+</div>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Description</th>
+            <th>Location</th>
+            <th>Date Requested</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for request in requests %}
+        <tr>
+            <td>{{ request.description }}</td>
+            <td>{{ request.location }}</td>
+            <td>{{ request.date_requested }}</td>
+            <td>{{ request.get_status_display }}</td>
+            <td>
+                <a href="{% url 'edit_maintenance_request' request.id %}" class="btn btn-sm btn-primary">Modify</a>
+
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

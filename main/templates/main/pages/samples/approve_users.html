@@ -1,0 +1,18 @@
+{% extends "main/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Approve Users</h2>
+    <form method="post">
+        {% csrf_token %}
+        <ul class="list-group">
+            {% for user_profile in unapproved_users %}
+            <li class="list-group-item">
+                <span>{{ user_profile.user.username }} ({{ user_profile.get_role_display }})</span>
+                <button type="submit" name="user_id" value="{{ user_profile.id }}" class="btn btn-success btn-sm float-right">Approve</button>
+            </li>
+            {% endfor %}
+        </ul>
+    </form>
+</div>
+{% endblock %}

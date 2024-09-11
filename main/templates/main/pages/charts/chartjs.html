@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid page-body-wrapper">
+    <div class="main-panel">
+        <div class="content-wrapper">
+            <div class="row">
+                <div class="col-lg-12 grid-margin stretch-card">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">Student Distribution by Class</h4>
+                            <canvas id="studentDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'path/to/your/chart.js' %}"></script>
+<script>
+    var ctx = document.getElementById('studentDistributionChart').getContext('2d');
+    var studentDistributionChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ class_names|safe }},
+            datasets: [{
+                label: '# of Students',
+                data: {{ student_counts|safe }},
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

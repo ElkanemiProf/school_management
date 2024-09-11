@@ -1,0 +1,38 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Budget List</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Allocated Amount</th>
+                <th>Spent Amount</th>
+                <th>Remaining Amount</th>
+                <th>Description</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for budget in budgets %}
+            <tr>
+                <td>{{ budget.category }}</td>
+                <td>{{ budget.allocated_amount }}</td>
+                <td>{{ budget.spent_amount }}</td>
+                <td>{{ budget.remaining_amount }}</td>
+                <td>{{ budget.description }}</td>
+                <td>
+                    <a href="{% url 'update_budget' budget.pk %}" class="btn btn-warning btn-sm">Modify</a>
+                    <form action="{% url 'delete_budget' budget.pk %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'create_budget' %}" class="btn btn-primary">Add Budget</a>
+</div>
+{% endblock %}

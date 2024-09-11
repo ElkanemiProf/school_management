@@ -1,0 +1,32 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Attendance Details{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h3 class="card-title mb-4">Attendance Details</h3>
+
+            <!-- Display Attendance Details -->
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><strong>Class:</strong> {{ attendance_image.class_name }}</li>
+                <li class="list-group-item"><strong>Teacher:</strong> {{ attendance_image.teacher.user.username }}</li>
+                <li class="list-group-item"><strong>Attendance Date:</strong> {{ attendance_image.attendance_date }}</li>
+                <li class="list-group-item"><strong>Uploaded By:</strong> {{ attendance_image.uploaded_by }}</li>
+                <li class="list-group-item"><strong>Remarks:</strong> {{ attendance_image.remarks }}</li>
+                <li class="list-group-item">
+                    <strong>Attendance Sheet Image:</strong> 
+                    <a href="{{ attendance_image.image.url }}" target="_blank" class="btn btn-link">View Image</a>
+                </li>
+            </ul>
+
+            <!-- Buttons for Edit and Back -->
+            <div class="mt-4">
+                <a href="{% url 'edit_attendance_image' attendance_image.pk %}" class="btn btn-warning">Edit</a>
+                <a href="{% url 'attendance_image_list' %}" class="btn btn-secondary">Back to Attendance List</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

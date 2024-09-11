@@ -1,0 +1,9 @@
+<h1>Approve Users</h1>
+{% for user in unapproved_users %}
+    <p>{{ user.user.username }} - {{ user.get_role_display }}</p>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="user_id" value="{{ user.id }}">
+        <button type="submit">Approve</button>
+    </form>
+{% endfor %}

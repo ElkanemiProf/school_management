@@ -1,0 +1,13 @@
+{% extends "admin/change_list.html" %}
+
+{% block content %}
+<div class="mb-3">
+    <h3>Summary of Students</h3>
+    <p>Total Students: {{ total_students }}</p>
+    <p>Total Male Students: {{ total_male_students }}</p>
+    <p>Total Female Students: {{ total_female_students }}</p>
+    <p>Total Boarders: {{ total_boarders }}</p>
+    <p>Total Day Students: {{ total_day_students }}</p>
+</div>
+{{ block.super }}
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Attendance Details{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h3 class="card-title mb-4">Search Attendance Records</h3>
+
+            <!-- Search Form -->
+            <form method="get" action="{% url 'attendance_search' %}">
+                <div class="row">
+                    <!-- Class Dropdown -->
+                    <div class="col-md-6 mb-3">
+                        <label for="class_name" class="form-label">Select Class</label>
+                        <select id="class_name" name="class_name" class="form-control">
+                            <option value="" disabled selected>Select a class</option>
+                            {% for class_name in class_names %}
+                                <option value="{{ class_name }}" {% if request.GET.class_name == class_name %}selected{% endif %}>{{ class_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Start Date Input -->
+                    <div class="col-md-6 mb-3">
+                        <label for="start_date" class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="start_date" name="start_date" value="{{ request.GET.start_date }}">
+                    </div>
+
+                    <!-- End Date Input -->
+                    <div class="col-md-6 mb-3">
+                        <label for="end_date" class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="end_date" name="end_date" value="{{ request.GET.end_date }}">
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="col-md-12 mb-3">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </div>
+
+                    <!-- Upload Attendance Button -->
+                    <div class="col-md-12 mb-3">
+                        <a href="{% url 'upload_attendance_image' %}" class="btn btn-success">Add Attendance</a>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Display No Records Message -->
+            {% if no_results_message %}
+                <div class="alert alert-warning mt-4">{{ no_results_message }}</div>
+            {% endif %}
+
+            <!-- Display Records if any -->
+            {% if records %}
+                <h4 class="mt-4">Attendance Records</h4>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Class</th>
+                            <th>Teacher</th>
+                            <th>Attendance Date</th>
+                            <th>Uploaded By</th>
+                            <th>Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in records %}
+                        <tr>
+                            <td>{{ record.class_name }}</td>
+                            <td>{{ record.teacher.user.username }}</td>
+                            <td>{{ record.attendance_date }}</td>
+                            <td>{{ record.uploaded_by }}</td>
+                            <td>{{ record.remarks }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

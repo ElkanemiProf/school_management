@@ -1,0 +1,57 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h1>Performance for {{ subject.name }}</h1>
+
+<div style="margin-bottom: 20px;">
+    <h2>Performance Statistics</h2>
+    <table style="border: 1px solid #ccc; width: 100%; border-collapse: collapse; margin-top: 10px;">
+        <tr style="background-color: #f2f2f2;">
+            <th style="padding: 10px;">Metric</th>
+            <th style="padding: 10px;">Value</th>
+        </tr>
+        <tr>
+            <td style="padding: 10px; border-bottom: 1px solid #ccc;">Average Score</td>
+            <td style="padding: 10px; border-bottom: 1px solid #ccc;">{{ avg_score|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td style="padding: 10px; border-bottom: 1px solid #ccc;">Highest Score</td>
+            <td style="padding: 10px; border-bottom: 1px solid #ccc;">{{ max_score|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td style="padding: 10px; border-bottom: 1px solid #ccc;">Lowest Score</td>
+            <td style="padding: 10px; border-bottom: 1px solid #ccc;">{{ min_score|floatformat:2 }}</td>
+        </tr>
+        <tr>
+            <td style="padding: 10px;">Best Student</td>
+            <td style="padding: 10px;">
+                {% if best_student %}
+                    {{ best_student.first_name }} {{ best_student.last_name }} 
+                    <br>
+                    <strong>Class:</strong> {{ best_student.school_class }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div style="margin-top: 20px;">
+    <h2>Recommendations</h2>
+    <ul>
+        {% if recommendations %}
+            {% for recommendation in recommendations %}
+                <li>{{ recommendation }}</li>
+            {% endfor %}
+        {% else %}
+            <p>No recommendations at this time.</p>
+        {% endif %}
+    </ul>
+</div>
+
+<div style="margin-top: 20px;">
+    <a href="{% url 'admin:main_subject_changelist' %}" class="button">Back to Subject Performance</a>
+
+</div>
+
+{% endblock %}

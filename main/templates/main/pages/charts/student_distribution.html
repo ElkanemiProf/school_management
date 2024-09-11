@@ -1,0 +1,140 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid page-body-wrapper">
+    <div class="main-panel">
+        <div class="content-wrapper">
+            <!-- Stacked Bar Chart - Full Width -->
+            <div class="row">
+                <div class="col-lg-12 grid-margin stretch-card">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">Student Distribution by Gender and Class</h4>
+                            <canvas id="stackedBarChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pie and Doughnut Charts Side by Side -->
+            <div class="row">
+                <!-- Pie Chart - Gender Distribution -->
+                <div class="col-lg-6 grid-margin stretch-card">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">Gender Distribution</h4>
+                            <canvas id="genderDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Doughnut Chart - Day Students vs Boarders -->
+                <div class="col-lg-6 grid-margin stretch-card">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">Day Students vs Boarders</h4>
+                            <canvas id="residencyDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- If using CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- OR, if using local copy -->
+<!-- <script src="{% static 'js/chart.js' %}"></script> -->
+
+<script>
+    // Stacked Bar Chart - Student Distribution by Gender and Class
+    var ctx = document.getElementById('stackedBarChart').getContext('2d');
+    var stackedBarChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ class_names|safe }},
+            datasets: [
+                {
+                    label: 'Male Students',
+                    data: {{ male_student_counts|safe }},
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Female Students',
+                    data: {{ female_student_counts|safe }},
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            scales: {
+                x: {
+                    stacked: true
+                },
+                y: {
+                    stacked: true,
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+            }
+        }
+    });
+
+    // Pie Chart - Gender Distribution
+    var ctx2 = document.getElementById('genderDistributionChart').getContext('2d');
+    var genderDistributionChart = new Chart(ctx2, {
+        type: 'pie',
+        data: {
+            labels: ['Male', 'Female'],
+            datasets: [{
+                data: {{ gender_counts|safe }},
+                backgroundColor: ['rgba(54, 162, 235, 0.2)', 'rgba(255, 99, 132, 0.2)'],
+                borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+            }
+        }
+    });
+
+    // Doughnut Chart - Day Students vs Boarders
+    var ctx3 = document.getElementById('residencyDistributionChart').getContext('2d');
+    var residencyDistributionChart = new Chart(ctx3, {
+        type: 'doughnut',
+        data: {
+            labels: ['Day Students', 'Boarders'],
+            datasets: [{
+                data: {{ residency_counts|safe }},
+                backgroundColor: ['rgba(255, 206, 86, 0.2)', 'rgba(75, 192, 192, 0.2)'],
+                borderColor: ['rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+            }
+        }
+    });
+</script>
+{% endblock %}

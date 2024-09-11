@@ -1,0 +1,26 @@
+<h1>Maintenance Requests</h1>
+<a href="{% url 'maintenance_request_create' %}">Create New Request</a>
+<table>
+    <tr>
+        <th>Requester</th>
+        <th>Date</th>
+        <th>Status</th>
+        <th>Priority</th>
+        <th>Assigned To</th>
+        <th>Resolution Date</th>
+        <th>Actions</th>
+    </tr>
+    {% for request in requests %}
+    <tr>
+        <td>{{ request.requester_name }}</td>
+        <td>{{ request.request_date }}</td>
+        <td>{{ request.status }}</td>
+        <td>{{ request.priority }}</td>
+        <td>{{ request.assigned_to }}</td>
+        <td>{{ request.resolution_date }}</td>
+        <td>
+            <a href="{% url 'maintenance_request_update' request.pk %}">Edit</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>

@@ -1,0 +1,24 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+    <h1>{{ title }}</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Teacher</th>
+                <th>Subjects</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for teacher in teachers %}
+                <tr>
+                    <td>{{ teacher.user.username }}</td>
+                    <td>
+                        {% for subject in teacher.subject_taught.all %}
+                            {{ subject.name }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

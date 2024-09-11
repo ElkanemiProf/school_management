@@ -1,0 +1,31 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Event List</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Event Name</th>
+                <th>Date</th>
+                <th>Actions</th> <!-- New column for actions -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in events %}
+            <tr>
+                <td>{{ event.name }}</td>
+                <td>{{ event.date|date:"M d, Y" }}</td>
+                <td>
+                    <a href="{% url 'edit_event' event.id %}" class="btn btn-warning btn-sm">Edit</a>
+                    <form action="{% url 'delete_event' event.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

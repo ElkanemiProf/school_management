@@ -1,0 +1,41 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Incident List</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Incident Type</th>
+                <th>Description</th>
+                <th>Location</th>
+                <th>Date Reported</th>
+                <th>Resolved</th>
+                <th>Action</th> <!-- New Action column -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for incident in incidents %}
+            <tr>
+                <td>{{ incident.incident_type }}</td>
+                <td>{{ incident.description }}</td>
+                <td>{{ incident.location }}</td>
+                <td>{{ incident.date_reported|date:"M d, Y, g:i a" }}</td>
+                <td>{{ incident.resolved }}</td>
+                <td>
+                    {% if not incident.resolved %}
+                    <form action="{% url 'resolve_incident' incident.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success">Mark as Resolved</button>
+                    </form>
+                    {% else %}
+                    Resolved
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+

@@ -1,0 +1,64 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Edit Attendance{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h3 class="card-title mb-4">Edit Attendance Details</h3>
+
+            <!-- Form for editing attendance -->
+            <form method="post">
+                {% csrf_token %}
+
+                <ul class="list-group list-group-flush">
+                    <!-- Class -->
+                    <li class="list-group-item">
+                        <strong>Class:</strong>
+                        <input type="text" class="form-control" id="class_name" name="class_name" value="{{ form.class_name.value }}" placeholder="Enter Class Name">
+                    </li>
+
+                    <!-- Teacher Dropdown -->
+                    <li class="list-group-item">
+                        <strong>Teacher:</strong>
+                        <select id="teacher" name="teacher" class="form-control">
+                            <option value="" disabled>Select a teacher</option>
+                            {% for teacher in teachers %}
+                                <!-- Pre-select the current teacher -->
+                                <option value="{{ teacher.id }}" {% if teacher.id == form.teacher.value %}selected{% endif %}>
+                                    {{ teacher.user.username }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </li>
+
+                    <!-- Attendance Date -->
+                    <li class="list-group-item">
+                        <strong>Attendance Date:</strong>
+                        <input type="date" class="form-control" id="attendance_date" name="attendance_date" value="{{ form.attendance_date.value }}">
+                    </li>
+
+                    <!-- Uploaded By -->
+                    <li class="list-group-item">
+                        <strong>Uploaded By:</strong>
+                        <input type="text" class="form-control" id="uploaded_by" name="uploaded_by" value="{{ form.uploaded_by.value }}" placeholder="Enter your name">
+                    </li>
+
+                    <!-- Remarks -->
+                    <li class="list-group-item">
+                        <strong>Remarks:</strong>
+                        <textarea class="form-control" id="remarks" name="remarks" rows="4" placeholder="Add any remarks">{{ form.remarks.value }}</textarea>
+                    </li>
+                </ul>
+
+                <!-- Buttons for Save and Cancel -->
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <a href="{% url 'attendance_image_detail' attendance.pk %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

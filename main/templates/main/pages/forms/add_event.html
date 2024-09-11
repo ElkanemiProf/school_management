@@ -1,0 +1,31 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Add New Event</h2>
+    <form method="POST">
+        {% csrf_token %}
+
+        <!-- Name Field -->
+        <div class="form-group">
+            <label for="id_name">Name</label>
+            <input type="text" class="form-control" id="id_name" name="name" value="{{ form.name.value|default_if_none:'' }}" placeholder="Event Name">
+            {% if form.name.errors %}
+                <div class="text-danger">{{ form.name.errors }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Date Field -->
+        <div class="form-group">
+            <label for="id_date">Date</label>
+            <input type="date" class="form-control" id="id_date" name="date" value="{{ form.date.value|default_if_none:'' }}">
+            {% if form.date.errors %}
+                <div class="text-danger">{{ form.date.errors }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+{% endblock %}

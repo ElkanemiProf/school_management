@@ -1,0 +1,24 @@
+<h3>Attendance Records</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Class</th>
+            <th>Teacher</th>
+            <th>Attendance Date</th>
+            <th>Uploaded By</th>
+            <th>Image</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for image in images %}
+        <tr>
+            <td>{{ image.class_name }}</td>
+            <td>{{ image.teacher.name }}</td>
+            <td>{{ image.attendance_date }}</td>
+            <td>{{ image.uploaded_by }}</td>
+            <td><a href="{{ image.image.url }}" target="_blank">View Image</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
