@@ -140,8 +140,7 @@ LOGOUT_REDIRECT_URL = '/main/login/'  # Update this to the correct path of your 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 SESSION_COOKIE_AGE = 1209600  # 2 weeks
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
-
-import os
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # MEDIA_URL: The URL that handles the media served from MEDIA_ROOT
 MEDIA_URL = '/media/'
