@@ -148,10 +148,21 @@ def change_maintenance_status(request, pk):
 # Dashboard view
 
 
-@user_passes_test(lambda u: u.userprofile.role in ['teacher', 'principal'])
-@login_required  # If authentication is required
 
+# Ensure only users with specific roles can access
+@user_passes_test(lambda u: u.is_authenticated and hasattr(u, 'userprofile') and u.userprofile.role in ['teacher', 'principal'])
+@login_required
 def dashboard_view(request):
+    user = request.user
+    
+    # Safely fetch the user's profile and role
+    try:
+        user_profile = user.userprofile
+        user_role = user_profile.role  # Fetch the role from the UserProfile
+    except AttributeError:
+        # Handle cases where the user does not have a userprofile or is anonymous
+        return redirect('login')  # Redirect to login or another appropriate page
+
     # Get the current time
     current_time = timezone.now()
 
@@ -162,14 +173,10 @@ def dashboard_view(request):
         greeting = "Good Afternoon"
     else:
         greeting = "Good Evening"
-    
-    # Assuming you have a Profile model linked to the User that contains the role
-    # Adjust this based on how your roles are assigned
-    user_role = request.user.userprofile.role  # Fetch the role from the UserProfile
 
     # Construct the full greeting with the user's role
     full_greeting = f"{greeting}, {request.user.first_name} {request.user.last_name} ({user_role})"
-    
+
     # Count unresolved incidents
     pending_incidents_count = IncidentReport.objects.filter(resolved=False).count()
 
@@ -205,7 +212,6 @@ def dashboard_view(request):
     allocated_amounts = [float(budget.allocated_amount) for budget in budgets]
     spent_amounts = [float(budget.spent_amount) for budget in budgets]
 
-
     # Fetch maintenance requests (you can modify this query to fit your needs)
     maintenance_requests = MaintenanceRequest.objects.all()  # You can filter if needed
 
@@ -226,9 +232,8 @@ def dashboard_view(request):
         'allocated_amounts': allocated_amounts,  # For the budget chart
         'spent_amounts': spent_amounts,  # For the budget chart
     }
-    
-    return render(request, 'main/index.html', context)
 
+    return render(request, 'main/index.html', context)
 
 # View for displaying students in a class
 @login_required
