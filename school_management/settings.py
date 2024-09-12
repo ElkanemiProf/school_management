@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-v2pnhayh(g6^55x+u$(kth-@c4xd=0b7vml)97g3ld*il=bv0t
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['school-management-9wts.onrender.com','localhost', '127.0.0.1']
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default
 
 
