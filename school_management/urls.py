@@ -19,8 +19,11 @@ from django.urls import path, include
 from django.conf.urls import handler403
 from main.views import permission_denied_view  # Import your custom 403 view
 handler403 = permission_denied_view
+from main import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('main/', include('main.urls')),
+    path('', views.dashboard_view, name='home'),
+    path('dashboard/', views.dashboard_view, name='dashboard'),
 ]
