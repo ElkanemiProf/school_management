@@ -1,101 +1,91 @@
-<!-- _sidebar.html -->
-{% load static %}
-<nav class="sidebar sidebar-offcanvas" id="sidebar">
-    <ul class="nav">
-        <li class="nav-item">
-            <a class="nav-link" href="{% url 'dashboard' %}">
-                <i class="mdi mdi-grid-large menu-icon"></i>
-                <span class="menu-title">Dashboard</span>
+<!-- _navbar.html -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="{% url 'dashboard' %}">School Management</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">Dashboard</a>
+          </li>
+  
+          <!-- Students Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle {% if request.resolver_match.url_name == 'student_distribution' or request.resolver_match.url_name == 'hoverable_school_classes' %}active{% endif %}" href="#" id="studentsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Students
             </a>
-        </li>
-        
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">
-                <i class="menu-icon mdi mdi-floor-plan"></i>
-                <span class="menu-title">Students</span>
-                <i class="menu-arrow"></i>
+            <ul class="dropdown-menu" aria-labelledby="studentsDropdown">
+              <li><a class="dropdown-item" href="{% url 'student_distribution' %}">Student Distribution</a></li>
+              <li><a class="dropdown-item" href="{% url 'hoverable_school_classes' %}">Class Distributions</a></li>
+              <li><a class="dropdown-item" href="#">Attendance</a></li>
+            </ul>
+          </li>
+  
+          <!-- Teachers Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle {% if request.resolver_match.url_name == 'subject_list' or request.resolver_match.url_name == 'teacher_list' %}active{% endif %}" href="#" id="teachersDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Teachers
             </a>
-            <div class="collapse" id="ui-basic">
-                <ul class="nav flex-column sub-menu">
-                    <li class="nav-item"> <a class="nav-link" href="{% url 'student_distribution' %}">Student Distribution</a></li>
-                    <li class="nav-item"> <a class="nav-link" href="{% url 'hoverable_school_classes' %}">Class Distributions</a></li>
-                    <li class="nav-item"> <a class="nav-link" href="pages/ui-features/typography.html">Attendance</a></li>
-                </ul>
-            </div>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="collapse" href="#form-elements" aria-expanded="false" aria-controls="form-elements">
-                <i class="menu-icon mdi mdi-card-text-outline"></i>
-                <span class="menu-title">Teachers</span>
-                <i class="menu-arrow"></i>
+            <ul class="dropdown-menu" aria-labelledby="teachersDropdown">
+              <li><a class="dropdown-item" href="{% url 'subject_list' %}">Subjects</a></li>
+              <li><a class="dropdown-item" href="{% url 'teacher_list' %}">Add/View Teacher</a></li>
+              <li><a class="dropdown-item" href="{% url 'attendance_image_list' %}">Attendance</a></li>
+            </ul>
+          </li>
+  
+          <!-- School Fees Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle {% if request.resolver_match.url_name == 'student_payment_status' %}active{% endif %}" href="#" id="feesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              School Fees
             </a>
-            <div class="collapse" id="form-elements">
-                <ul class="nav flex-column sub-menu">
-                    <li class="nav-item"><a class="nav-link" href="{% url 'subject_list' %}">Subjects</a></li>
-
-                    <li class="nav-item"><a class="nav-link" href="{% url 'teacher_list' %}">Add/View Teacher</a></li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'attendance_image_list' %}">Attendance</a>
-                    </li>
-                    
-                </ul>
-            </div>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="collapse" href="#charts" aria-expanded="false" aria-controls="charts">
-                <i class="menu-icon mdi mdi-chart-line"></i>
-                <span class="menu-title">School Fees</span>
-                <i class="menu-arrow"></i>
+            <ul class="dropdown-menu" aria-labelledby="feesDropdown">
+              <li><a class="dropdown-item" href="{% url 'student_payment_status' %}">View Paid and Unpaid</a></li>
+            </ul>
+          </li>
+  
+          <!-- Reports Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle {% if request.resolver_match.url_name == 'report_incident' or request.resolver_match.url_name == 'maintenance_request_list' %}active{% endif %}" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Reports
             </a>
-            <div class="collapse" id="charts">
-                <ul class="nav flex-column sub-menu">
-                    <li class="nav-item"> <a class="nav-link" href="{% url 'student_payment_status' %}">View Paid and Unpaid </a></li>
-                </ul>
-            </div>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="collapse" href="#tables" aria-expanded="false" aria-controls="tables">
-                <i class="menu-icon mdi mdi-table"></i>
-                <span class="menu-title">Reports</span>
-                <i class="menu-arrow"></i>
+            <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
+              <li><a class="dropdown-item" href="{% url 'report_incident' %}">Incidence Reports</a></li>
+              <li><a class="dropdown-item" href="{% url 'maintenance_request_list' %}">Maintenance Requests</a></li>
+            </ul>
+          </li>
+  
+          <!-- Finance Management Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle {% if request.resolver_match.url_name == 'create_budget' %}active{% endif %}" href="#" id="financeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Finance Mgt
             </a>
-            <div class="collapse" id="tables">
-                <ul class="nav flex-column sub-menu">
-                    <li class="nav-item"> <a class="nav-link" href="{% url 'report_incident' %}">Incidence Reports</a></li>
-                    <li class="nav-item"> <a class="nav-link" href="{% url 'maintenance_request_list' %}">Maintenance Requests</a></li>
-                </ul>
-            </div>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="collapse" href="#icons" aria-expanded="false" aria-controls="icons">
-                <i class="menu-icon mdi mdi-layers-outline"></i>
-                <span class="menu-title">Finance Mgt</span>
-                <i class="menu-arrow"></i>
+            <ul class="dropdown-menu" aria-labelledby="financeDropdown">
+              <li><a class="dropdown-item" href="{% url 'create_budget' %}">Budget</a></li>
+              <li><a class="dropdown-item" href="#">Audit</a></li>
+            </ul>
+          </li>
+  
+          <!-- Events Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle {% if request.resolver_match.url_name == 'event_list' or request.resolver_match.url_name == 'add_event' %}active{% endif %}" href="#" id="eventsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Events
             </a>
-            <div class="collapse" id="icons">
-                <ul class="nav flex-column sub-menu">
-                    <li class="nav-item"> <a class="nav-link" href="{% url 'create_budget' %}">Budget</a></li>
-
-                    <li class="nav-item"> <a class="nav-link" href="pages/icons/font-awesome.html">Audit</a></li>
-                </ul>
-            </div>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="collapse" href="#auth" aria-expanded="false" aria-controls="auth">
-                <i class="menu-icon mdi mdi-account-circle-outline"></i>
-                <span class="menu-title">Events</span>
-                <i class="menu-arrow"></i>
-            </a>
-            <div class="collapse" id="auth">
-                <ul class="nav flex-column sub-menu">
-                    <li class="nav-item"> <a class="nav-link" href="{% url 'event_list' %}"> View Event </a></li>
-                    <li class="nav-item"> <a class="nav-link" href="{% url 'add_event' %}"> Add Event </a></li>
-                    
-                </ul>
-            </div>
-        </li>
-      
-        
-    </ul>
-</nav>
+            <ul class="dropdown-menu" aria-labelledby="eventsDropdown">
+              <li><a class="dropdown-item" href="{% url 'event_list' %}">View Events</a></li>
+              <li><a class="dropdown-item" href="{% url 'add_event' %}">Add Event</a></li>
+            </ul>
+          </li>
+  
+        </ul>
+  
+        <!-- Search form -->
+        <form class="d-flex" method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button class="btn btn-outline-danger" type="submit">Logout</button>
+          </form>
+      </div>
+    </div>
+  </nav>
+  
