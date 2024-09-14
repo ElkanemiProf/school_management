@@ -3,71 +3,71 @@
 {% block title %}Student Payment Status{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-12">
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
         <h3>Student Payment Status</h3>
-        
-        <!-- Search Form -->
-        <form method="GET" action="{% url 'student_payment_status' %}">
-            <input type="text" name="q" placeholder="Search by name" value="{{ query }}" class="form-control mb-3">
+        <form method="get" action="{% url 'student_payment_status' %}">
+            <!-- Search by Name -->
+            <div class="form-group mb-3">
+                <input type="text" class="form-control" name="q" placeholder="Search by name" value="{{ query }}">
+            </div>
+
+            <!-- OR Separator -->
+            <div class="text-center mb-3">
+                <strong>OR</strong>
+            </div>
+
+            <!-- Filter by Classroom -->
+            <div class="form-group mb-3">
+                <select class="form-select" name="classroom">
+                    <option value="">Select Classroom</option>
+                    {% for school_class in school_classes %}
+                        <option value="{{ school_class.id }}" {% if school_class.id == classroom_query %}selected{% endif %}>{{ school_class.level }} - {{ school_class.section }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
             <button type="submit" class="btn btn-primary">Search</button>
         </form>
+        
+        <!-- Display the counts of paid and unpaid students -->
+        {% if count_paid or count_unpaid %}
+            <div class="mt-4">
+                <p><strong>Paid Students: </strong> {{ count_paid }}</p>
+                <p><strong>Unpaid Students: </strong> {{ count_unpaid }}</p>
+            </div>
+        {% endif %}
 
-        {% if query %}
-            {% if paid_students %}
-            <!-- Paid Students Table -->
-            <h4>Paid Students</h4>
-            <table class="table table-bordered">
+        <!-- Display Table Results -->
+        {% if paid_students or unpaid_students %}
+            <h4 class="mt-4">Search Results:</h4>
+            <table class="table table-bordered mt-3">
                 <thead>
                     <tr>
-                        <th>First Name</th>
-                        <th>Last Name</th>
+                        <th>Student Name</th>
                         <th>Class</th>
                         <th>Payment Status</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for student in paid_students %}
-                    <tr>
-                        <td>{{ student.first_name }}</td>
-                        <td>{{ student.last_name }}</td>
-                        <td>{{ student.school_class.level }}{{ student.school_class.section }}</td>
-                        <td>{{ student.get_school_fees_status_display }}</td>
-                    </tr>
+                        <tr>
+                            <td>{{ student.first_name }} {{ student.last_name }}</td>
+                            <td>{{ student.school_class.level }} {{ student.school_class.section }}</td>
+                            <td>Paid</td>
+                        </tr>
                     {% endfor %}
-                </tbody>
-            </table>
-            {% endif %}
-
-            {% if unpaid_students %}
-            <!-- Unpaid Students Table -->
-            <h4>Unpaid Students</h4>
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Class</th>
-                        <th>Payment Status</th>
-                    </tr>
-                </thead>
-                <tbody>
                     {% for student in unpaid_students %}
-                    <tr>
-                        <td>{{ student.first_name }}</td>
-                        <td>{{ student.last_name }}</td>
-                        <td>{{ student.school_class.level }}{{ student.school_class.section }}</td>
-                        <td>{{ student.get_school_fees_status_display }}</td>
-                    </tr>
+                        <tr>
+                            <td>{{ student.first_name }} {{ student.last_name }}</td>
+                            <td>{{ student.school_class.level }} {{ student.school_class.section }}</td>
+                            <td>Unpaid</td>
+                        </tr>
                     {% endfor %}
                 </tbody>
             </table>
-            {% endif %}
-
-            {% if not paid_students and not unpaid_students %}
-            <!-- No Students Found -->
-            <p>No students found for the given search criteria.</p>
-            {% endif %}
+        {% else %}
+            <p class="mt-4">No students found for the selected search criteria.</p>
         {% endif %}
     </div>
 </div>

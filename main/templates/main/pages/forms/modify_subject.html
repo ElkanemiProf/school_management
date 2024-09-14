@@ -7,7 +7,13 @@
     <div class="col-md-8 col-lg-6">
         <div class="card shadow-sm">
             <div class="card-body">
-                <h4 class="card-title mb-4">Modify Subject</h4>
+                <!-- Close button added here -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="card-title">Modify Subject</h4>
+                    <!-- Close button (X) that navigates back -->
+                    <a href="{% url 'subject_list' %}" class="btn-close" aria-label="Close"></a>
+                </div>
+                
                 <form method="post">
                     {% csrf_token %}
                     

@@ -637,41 +637,58 @@ def edit_maintenance_request(request, pk):
     
     return render(request, 'main/pages/forms/edit_maintenance_request.html', {'form': form})
 
+
+from django.db.models import Q
+
+
 @login_required
 def student_payment_status_view(request):
+    # Get the search queries for name and classroom
     query = request.GET.get('q', '').strip()
+    classroom_query = request.GET.get('classroom', '')
+
+    # Base querysets for paid and unpaid students
+    paid_students = Student.objects.filter(school_fees_status='paid')
+    unpaid_students = Student.objects.filter(school_fees_status='unpaid')
 
     if query:
-        from django.db.models import Q
-
-        # Split the query into parts to handle first and last names separately
         query_parts = query.split()
-
         if len(query_parts) == 2:
             first_name_query, last_name_query = query_parts
         else:
             first_name_query = last_name_query = query
 
-        paid_students = Student.objects.filter(
-            Q(school_fees_status='paid') & 
-            (Q(first_name__icontains=first_name_query) & Q(last_name__icontains=last_name_query))
+        paid_students = paid_students.filter(
+            Q(first_name__icontains=first_name_query) & Q(last_name__icontains=last_name_query)
         )
-        
-        unpaid_students = Student.objects.filter(
-            Q(school_fees_status='unpaid') & 
-            (Q(first_name__icontains=first_name_query) & Q(last_name__icontains=last_name_query))
+        unpaid_students = unpaid_students.filter(
+            Q(first_name__icontains=first_name_query) & Q(last_name__icontains=last_name_query)
         )
-    else:
-        paid_students = Student.objects.filter(school_fees_status='paid')
-        unpaid_students = Student.objects.filter(school_fees_status='unpaid')
+
+    if classroom_query:
+        paid_students = paid_students.filter(school_class_id=classroom_query)
+        unpaid_students = unpaid_students.filter(school_class_id=classroom_query)
+
+    # Get the counts of paid and unpaid students for the selected classroom
+    count_paid = paid_students.count()
+    count_unpaid = unpaid_students.count()
+
+    # Fetch all school classes for the dropdown
+    school_classes = SchoolClass.objects.all()
 
     context = {
         'paid_students': paid_students,
         'unpaid_students': unpaid_students,
+        'count_paid': count_paid,  # Count of paid students
+        'count_unpaid': count_unpaid,  # Count of unpaid students
         'query': query,
+        'classroom_query': classroom_query,
+        'school_classes': school_classes,
     }
-    
+
     return render(request, 'main/pages/tables/student_payment_status.html', context)
+
+
 
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
