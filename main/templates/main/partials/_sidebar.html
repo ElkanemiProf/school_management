@@ -1,91 +1,138 @@
-<!-- _navbar.html -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="{% url 'dashboard' %}">School Management</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">Dashboard</a>
-          </li>
-  
-          <!-- Students Dropdown -->
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle {% if request.resolver_match.url_name == 'student_distribution' or request.resolver_match.url_name == 'hoverable_school_classes' %}active{% endif %}" href="#" id="studentsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Students
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="studentsDropdown">
-              <li><a class="dropdown-item" href="{% url 'student_distribution' %}">Student Distribution</a></li>
-              <li><a class="dropdown-item" href="{% url 'hoverable_school_classes' %}">Class Distributions</a></li>
-              <li><a class="dropdown-item" href="#">Attendance</a></li>
-            </ul>
-          </li>
-  
-          <!-- Teachers Dropdown -->
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle {% if request.resolver_match.url_name == 'subject_list' or request.resolver_match.url_name == 'teacher_list' %}active{% endif %}" href="#" id="teachersDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Teachers
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="teachersDropdown">
-              <li><a class="dropdown-item" href="{% url 'subject_list' %}">Subjects</a></li>
-              <li><a class="dropdown-item" href="{% url 'teacher_list' %}">Add/View Teacher</a></li>
-              <li><a class="dropdown-item" href="{% url 'attendance_image_list' %}">Attendance</a></li>
-            </ul>
-          </li>
-  
-          <!-- School Fees Dropdown -->
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle {% if request.resolver_match.url_name == 'student_payment_status' %}active{% endif %}" href="#" id="feesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              School Fees
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="feesDropdown">
-              <li><a class="dropdown-item" href="{% url 'student_payment_status' %}">View Paid and Unpaid</a></li>
-            </ul>
-          </li>
-  
-          <!-- Reports Dropdown -->
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle {% if request.resolver_match.url_name == 'report_incident' or request.resolver_match.url_name == 'maintenance_request_list' %}active{% endif %}" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Reports
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
-              <li><a class="dropdown-item" href="{% url 'report_incident' %}">Incidence Reports</a></li>
-              <li><a class="dropdown-item" href="{% url 'maintenance_request_list' %}">Maintenance Requests</a></li>
-            </ul>
-          </li>
-  
-          <!-- Finance Management Dropdown -->
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle {% if request.resolver_match.url_name == 'create_budget' %}active{% endif %}" href="#" id="financeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Finance Mgt
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="financeDropdown">
-              <li><a class="dropdown-item" href="{% url 'create_budget' %}">Budget</a></li>
-              <li><a class="dropdown-item" href="#">Audit</a></li>
-            </ul>
-          </li>
-  
-          <!-- Events Dropdown -->
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle {% if request.resolver_match.url_name == 'event_list' or request.resolver_match.url_name == 'add_event' %}active{% endif %}" href="#" id="eventsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Events
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="eventsDropdown">
-              <li><a class="dropdown-item" href="{% url 'event_list' %}">View Events</a></li>
-              <li><a class="dropdown-item" href="{% url 'add_event' %}">Add Event</a></li>
-            </ul>
-          </li>
-  
-        </ul>
-  
-        <!-- Search form -->
-        <form class="d-flex" method="POST" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button class="btn btn-outline-danger" type="submit">Logout</button>
-          </form>
-      </div>
+  <div class="container-fluid">
+    <a class="navbar-brand" href="{% url 'dashboard' %}">School Management</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <!-- Dashboard Link -->
+        <li class="nav-item">
+          <a href="{% url 'admissions_list' %}" class="nav-link">Admissions by Year</a>
+</li>
+
+        <!-- Add a larger pipe as a separator -->
+        <li class="nav-item nav-separator">|</li>
+
+        <!-- Students Dropdown -->
+        <li class="nav-item dropdown">
+          <a class="nav-link {% if request.resolver_match.url_name == 'student_distribution' or request.resolver_match.url_name == 'hoverable_school_classes' %}active{% endif %}" href="#" id="studentsDropdown" role="button">
+            Students
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="studentsDropdown">
+            <li><a class="dropdown-item" href="{% url 'student_distribution' %}">Student Distribution</a></li>
+            <li><a class="dropdown-item" href="{% url 'hoverable_school_classes' %}">Class Distributions</a></li>
+            <li><a class="dropdown-item" href="#">Attendance</a></li>
+          </ul>
+        </li>
+
+        <!-- Add a larger pipe as a separator -->
+        <li class="nav-item nav-separator">|</li>
+
+        <!-- Teachers Dropdown -->
+        <li class="nav-item dropdown">
+          <a class="nav-link {% if request.resolver_match.url_name == 'subject_list' or request.resolver_match.url_name == 'teacher_list' %}active{% endif %}" href="#" id="teachersDropdown" role="button">
+            Teachers
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="teachersDropdown">
+            <li><a class="dropdown-item" href="{% url 'subject_list' %}">Subjects</a></li>
+            <li><a class="dropdown-item" href="{% url 'teacher_list' %}">Add/View Teacher</a></li>
+            <li><a class="dropdown-item" href="{% url 'attendance_image_list' %}">Attendance</a></li>
+          </ul>
+        </li>
+
+        <!-- Add a larger pipe as a separator -->
+        <li class="nav-item nav-separator">|</li>
+
+        <!-- School Fees Dropdown -->
+        <li class="nav-item dropdown">
+          <a class="nav-link {% if request.resolver_match.url_name == 'student_payment_status' %}active{% endif %}" href="#" id="feesDropdown" role="button">
+            School Fees
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="feesDropdown">
+            <li><a class="dropdown-item" href="{% url 'student_payment_status' %}">View Paid and Unpaid</a></li>
+          </ul>
+        </li>
+
+        <!-- Add a larger pipe as a separator -->
+        <li class="nav-item nav-separator">|</li>
+
+        <!-- Reports Dropdown -->
+        <li class="nav-item dropdown">
+          <a class="nav-link {% if request.resolver_match.url_name == 'report_incident' or request.resolver_match.url_name == 'maintenance_request_list' %}active{% endif %}" href="#" id="reportsDropdown" role="button">
+            Reports
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
+            <li><a class="dropdown-item" href="{% url 'report_incident' %}">Incidence Reports</a></li>
+            <li><a class="dropdown-item" href="{% url 'maintenance_request_list' %}">Maintenance Requests</a></li>
+          </ul>
+        </li>
+
+        <!-- Add a larger pipe as a separator -->
+        <li class="nav-item nav-separator">|</li>
+
+        <!-- Finance Management Dropdown -->
+        <li class="nav-item dropdown">
+          <a class="nav-link {% if request.resolver_match.url_name == 'create_budget' %}active{% endif %}" href="#" id="financeDropdown" role="button">
+            Finance Mgt
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="financeDropdown">
+            <li><a class="dropdown-item" href="{% url 'create_budget' %}">Budget</a></li>
+            <li><a class="dropdown-item" href="#">Audit</a></li>
+          </ul>
+        </li>
+
+        <!-- Add a larger pipe as a separator -->
+        <li class="nav-item nav-separator">|</li>
+
+        <!-- Events Dropdown -->
+        <li class="nav-item dropdown">
+          <a class="nav-link {% if request.resolver_match.url_name == 'event_list' or request.resolver_match.url_name == 'add_event' %}active{% endif %}" href="#" id="eventsDropdown" role="button">
+            Events and Clubs
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="eventsDropdown">
+            <li><a class="dropdown-item" href="{% url 'event_list' %}">View Events</a></li>
+            <li><a class="dropdown-item" href="{% url 'add_event' %}">Add Event</a></li>
+            <li><a class="dropdown-item" href="{% url 'list_clubs' %}">Clubs</a></li>
+          </ul>
+        </li>
+      </ul>
+
+      <!-- Search form -->
+      <form class="d-flex" method="POST" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button class="btn btn-outline-danger" type="submit">Logout</button>
+      </form>
     </div>
-  </nav>
-  
+  </div>
+</nav>
+
+<!-- Inline CSS for styling -->
+<style>
+  /* Increase size of separators */
+  .nav-separator {
+    margin: 0 15px;
+    color: #333; /* Darker color for better visibility */
+    font-size: 20px; /* Make pipes larger */
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+  }
+
+  .navbar-nav .nav-item {
+    padding: 0 10px; /* Adjust padding to make more space for logout */
+  }
+
+  .navbar-nav .nav-item a {
+    padding: 10px 0;
+  }
+
+  /* Hover effect to show dropdown menu */
+  .navbar-nav .dropdown:hover .dropdown-menu {
+    display: block; /* Make dropdowns appear on hover */
+  }
+
+  .navbar-nav .dropdown-menu {
+    margin-top: 0;
+  }
+</style>

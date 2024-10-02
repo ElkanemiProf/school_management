@@ -1,10 +1,45 @@
 {% extends 'main/base.html' %}
-
+{% load static %}
 {% block title %}Subject Management{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-10">
+<style>
+    body {
+        background-color: #E0E0E0; /* Pale grey background */
+    }
+
+    .subject-container {
+        display: flex;
+        align-items: stretch; /* Ensure both sides stretch fully */
+        justify-content: space-between;
+        height: 100vh; /* Full height of the viewport */
+    }
+
+    .bg-image {
+        background-image: url("{% static 'assets/images/red.jpg' %}"); /* Add your image path */
+        background-size: cover;
+        background-position: center;
+        height: 100%; /* Ensure it covers the full container height */
+        width: 40%; /* Adjust the width of the image container */
+    }
+
+    .subject-table {
+        width: 55%; /* The table occupies 55% of the width */
+        margin-left: auto;
+        padding: 20px;
+        background-color: white;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow-y: auto; /* Allow scrolling if content overflows */
+    }
+</style>
+
+<div class="subject-container">
+    <!-- Background image on the left -->
+    <div class="bg-image"></div>
+
+    <!-- Table with subject details shifted to the right -->
+    <div class="subject-table">
         <h2 class="mb-4">Subject Management</h2>
 
         <!-- Add New Subject Button -->

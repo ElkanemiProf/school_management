@@ -8,7 +8,8 @@
             <tr>
                 <th>Event Name</th>
                 <th>Date</th>
-                <th>Actions</th> <!-- New column for actions -->
+                <th>Notes</th> <!-- New column for displaying notes -->
+                <th>Actions</th> <!-- Actions column -->
             </tr>
         </thead>
         <tbody>
@@ -16,6 +17,17 @@
             <tr>
                 <td>{{ event.name }}</td>
                 <td>{{ event.date|date:"M d, Y" }}</td>
+                <td>
+                    {% if event.notes.all %}
+                        <ul>
+                            {% for note in event.notes.all %}
+                                <li>{{ note.content }} <small>(Added: {{ note.timestamp|date:"M d, Y g:i a" }})</small></li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <em>No notes available</em>
+                    {% endif %}
+                </td>
                 <td>
                     <a href="{% url 'edit_event' event.id %}" class="btn btn-warning btn-sm">Edit</a>
                     <form action="{% url 'delete_event' event.id %}" method="post" style="display:inline;">

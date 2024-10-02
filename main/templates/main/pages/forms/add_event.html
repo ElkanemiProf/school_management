@@ -3,29 +3,87 @@
 {% block content %}
 <div class="container mt-5">
     <h2 class="mb-4">Add New Event</h2>
-    <form method="POST">
+
+    <!-- Display success or error messages -->
+    {% if messages %}
+    <div class="alert alert-dismissible fade show" role="alert">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Display form field errors -->
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <h5>There were some errors with your submission:</h5>
+        <ul>
+            {% for field, errors in form.errors.items %}
+                <li>{{ field|capfirst }}: {{ errors|join:", " }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="POST" action="{% url 'add_event' %}">
         {% csrf_token %}
 
-        <!-- Name Field -->
+        <!-- Event Form Fields -->
         <div class="form-group">
-            <label for="id_name">Name</label>
-            <input type="text" class="form-control" id="id_name" name="name" value="{{ form.name.value|default_if_none:'' }}" placeholder="Event Name">
+            <label for="id_name">Event Name</label>
+            <input type="text" class="form-control" id="id_name" name="name" value="{{ form.name.value|default_if_none:'' }}" placeholder="Enter event name">
             {% if form.name.errors %}
                 <div class="text-danger">{{ form.name.errors }}</div>
             {% endif %}
         </div>
 
-        <!-- Date Field -->
         <div class="form-group">
-            <label for="id_date">Date</label>
+            <label for="id_date">Event Date</label>
             <input type="date" class="form-control" id="id_date" name="date" value="{{ form.date.value|default_if_none:'' }}">
             {% if form.date.errors %}
                 <div class="text-danger">{{ form.date.errors }}</div>
             {% endif %}
         </div>
 
+        <hr class="my-4">
+
+        <!-- Notes Section -->
+        <h4 class="mt-4">Add Notes (Optional)</h4>
+
+        <div id="notes-section">
+            <div class="form-group">
+                <label>Note 1</label>
+                <textarea class="form-control" name="note_content" rows="2" placeholder="Enter your note"></textarea>
+            </div>
+        </div>
+
+        <!-- Add another note button -->
+        <button type="button" class="btn btn-outline-secondary mt-3" id="add-note-btn">
+            <i class="fas fa-plus"></i> Add Another Note
+        </button>
+
         <!-- Submit Button -->
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary mt-4 float-right">Submit Event</button>
     </form>
 </div>
+
+<!-- JavaScript for dynamically adding note fields -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const notesSection = document.getElementById('notes-section');
+        const addNoteBtn = document.getElementById('add-note-btn');
+        let noteIndex = 1;
+
+        addNoteBtn.addEventListener('click', function() {
+            noteIndex++;
+            const newNoteDiv = document.createElement('div');
+            newNoteDiv.classList.add('form-group');
+            newNoteDiv.innerHTML = `
+                <label>Note ${noteIndex}</label>
+                <textarea class="form-control" name="note_content" rows="2" placeholder="Enter your note"></textarea>
+            `;
+            notesSection.appendChild(newNoteDiv);
+        });
+    });
+</script>
 {% endblock %}

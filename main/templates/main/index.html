@@ -3,175 +3,134 @@
 {% block title %}Dashboard - Overview{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container-fluid mt-4">
+  <h3 class="mb-4">
+    Dashboard Overview
+    <div class="notification-icon" style="position: relative; display: inline-block;">
+      <i class="fas fa-bell" style="font-size: 24px; cursor: pointer;" data-toggle="modal" data-target="#notificationModal"></i>
+      {% if total_notifications_count > 0 %}
+      <span class="badge badge-danger" style="position: absolute; top: -8px; right: -8px; background-color: red; color: white; border-radius: 50%; padding: 4px 6px; font-size: 12px;">
+        {{ total_notifications_count }}
+      </span>
+      {% endif %}
+    </div>
+  </h3>
+
+
+
+
+
+  <!-- Dashboard Cards for Overview -->
+  <div class="row dashboard-overview">
+    <div class="col-md-3 mb-4">
+      <div class="card bg-primary text-white text-center p-4">
+        <h6 class="card-title">Percentage of Paid School Fees</h6>
+        <h3>32.53%</h3>
+      </div>
+    </div>
+    <div class="col-md-3 mb-4">
+      <div class="card bg-success text-white text-center p-4">
+        <h6 class="card-title">Total Students</h6>
+        <h3>{{ total_students }}</h3>
+      </div>
+    </div>
+    <div class="col-md-3 mb-4">
+      <div class="card bg-info text-white text-center p-4">
+        <h6 class="card-title">Total Teachers</h6>
+        <h3>{{ total_teachers }}</h3>
+      </div>
+    </div>
+    <div class="col-md-3 mb-4">
+      <div class="card bg-success text-white text-center p-4">
+          <h6 class="card-title">2023/2024 Admissions</h6>
+          <h3>{{ current_year_admissions }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- Budget Overview and Student Distribution side by side -->
   <div class="row">
-    <div class="col-lg-12">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Dashboard Overview</h5>
-          <div class="row">
-            <!-- School Fees Paid -->
-            <div class="col-md-3 mb-4">
-              <div class="card bg-primary text-white text-center">
-                <div class="card-body">
-                  <h6 class="card-title">Percentage of paid School Fees</h6>
-                  <h3>32.53%</h3>
-                </div>
-              </div>
-            </div>
+    <!-- Budget Overview Section -->
+    <div class="col-md-6">
+      <div class="card p-4" style="height: 500px;">
+          <h5 class="card-title">Budget Overview</h5>
+          <canvas id="budgetChart"></canvas>
+      </div>
+    </div>
+    <!-- Student Distribution Section -->
+    <div class="col-md-6">
+      <div class="card p-4" style="height: 500px;">
+          <h5 class="card-title">Student Distribution</h5>
+          <canvas id="studentDistributionChart" style="max-width: 400px; max-height: 400px;"></canvas>
+      </div>
+    </div>
+  </div>
 
-            <!-- Total Students -->
-            <div class="col-md-3 mb-4">
-              <div class="card bg-success text-white text-center">
-                <div class="card-body">
-                  <h6 class="card-title">Total Students</h6>
-                  <h3>{{ total_students }}</h3>
-                </div>
-              </div>
-            </div>
-
-            <!-- Total Teachers -->
-            <div class="col-md-3 mb-4">
-              <div class="card bg-info text-white text-center">
-                <div class="card-body">
-                  <h6 class="card-title">Total Teachers</h6>
-                  <h3>{{ total_teachers }}</h3>
-                </div>
-              </div>
-            </div>
-
-            <!-- Current Time -->
-            <div class="col-md-3 mb-4">
-              <div class="card bg-warning text-white text-center">
-                <div class="card-body">
-                  <h6 class="card-title">Current Time</h6>
-                  <h3 id="current-time"></h3>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Upcoming Events Section -->
-          <div class="row">
-            <div class="col-md-12">
-              <div class="card">
-                <div class="card-body">
-                  <h5 class="card-title">Upcoming Events at a Glance!</h5>
-                  <a href="{% url 'event_list' %}" class="btn btn-outline-primary mb-3">View in detail</a>
-                  <table class="table table-striped">
-                    <thead>
-                      <tr>
-                        <th>Event</th>
-                        <th>Date</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {% for event in important_events %}
-                      <tr>
-                        <td>{{ event.name }}</td>
-                        <td>{{ event.date|date:"F j, Y" }}</td>
-                      </tr>
-                      {% endfor %}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Pending Maintenance Requests Section -->
-          <div class="row">
-            <div class="col-md-12">
-              <div class="card">
-                <div class="card-body">
-                  <h5 class="card-title">Pending Maintenance Requests</h5>
-                  <a href="{% url 'maintenance_request_create' %}" class="btn btn-outline-primary mb-3">Add New Requests</a>
-                  <table class="table table-striped">
-                    <thead>
-                      <tr>
-                        <th>Description</th>
-                        <th>Location</th>
-                        <th>Date Requested</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {% for request in maintenance_requests %}
-                      <tr>
-                        <td>{{ request.description }}</td>
-                        <td>{{ request.location }}</td>
-                        <td>{{ request.date_requested|date:"F j, Y" }}</td>
-                        <td>
-                          {% if request.status == 'pending' %}
-                          <span class="badge bg-danger">Pending</span>
-                          {% elif request.status == 'in_progress' %}
-                          <span class="badge bg-warning">In Progress</span>
-                          {% else %}
-                          <span class="badge bg-success">Resolved</span>
-                          {% endif %}
-                        </td>
-                      </tr>
-                      {% endfor %}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Student Distribution by Gender -->
-          <div class="row">
-            <div class="col-md-6">
-              <div class="card">
-                <div class="card-body">
-                  <h5 class="card-title">Student Distribution</h5>
-                  <p>Day Students: <strong>{{ day_students_count }}</strong></p>
-                  <p>Boarders: <strong>{{ boarders_count }}</strong></p>
-                  <p>Male Students: <strong>{{ male_students_count }}</strong></p>
-                  <p>Female Students: <strong>{{ female_students_count }}</strong></p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Budget Overview Section -->
-            <div class="col-md-6">
-              <div class="card">
-                <div class="card-body">
-                  <h5 class="card-title">Budget Overview</h5>
-                  <canvas id="budgetChart"></canvas>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+  <!-- Admissions Line Chart -->
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <div class="card p-4" style="height: 500px;">
+        <h5 class="card-title">Admissions Count by Year</h5>
+        <canvas id="admissionChart"></canvas>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Chart.js Integration for Budget -->
+<!-- Chart.js and Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Admissions Line Chart -->
+<script>
+  const ctxAdmissions = document.getElementById('admissionChart').getContext('2d');
+  const admissionsChart = new Chart(ctxAdmissions, {
+    type: 'line',
+    data: {
+      labels: {{ admission_years|safe }},
+      datasets: [{
+        label: 'Number of Admissions',
+        data: {{ admission_counts|safe }},
+        borderColor: 'rgba(75, 192, 192, 1)',
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        fill: true,
+        borderWidth: 2,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top' }
+      },
+      scales: {
+        x: { title: { display: true, text: 'Year' } },
+        y: { beginAtZero: true, title: { display: true, text: 'Admissions Count' } }
+      }
+    }
+  });
+</script>
+
+<!-- Budget Chart -->
 <script>
   const ctx = document.getElementById('budgetChart').getContext('2d');
-  const categories = {{ categories|safe }};
-  const allocatedAmounts = {{ allocated_amounts|safe }};
-  const spentAmounts = {{ spent_amounts|safe }};
-
   const budgetChart = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: categories,
+      labels: {{ categories|safe }},
       datasets: [
         {
           label: 'Allocated Budget',
-          data: allocatedAmounts,
+          data: {{ allocated_amounts|safe }},
           backgroundColor: 'rgba(54, 162, 235, 0.5)',
           borderColor: 'rgba(54, 162, 235, 1)',
           borderWidth: 1
         },
         {
           label: 'Spent Budget',
-          data: spentAmounts,
+          data: {{ spent_amounts|safe }},
           backgroundColor: 'rgba(255, 99, 132, 0.5)',
           borderColor: 'rgba(255, 99, 132, 1)',
           borderWidth: 1
@@ -179,9 +138,45 @@
       ]
     },
     options: {
-      scales: {
-        y: {
-          beginAtZero: true
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+</script>
+<script>
+  // Ensure the chart library is properly initialized and ready
+  const ctxStudent = document.getElementById('studentDistributionChart').getContext('2d');
+  const studentDistributionChart = new Chart(ctxStudent, {
+    type: 'doughnut',
+    data: {
+      labels: ['Day Students', 'Boarders', 'Male Students', 'Female Students'],
+      datasets: [{
+        data: [
+          {{ day_students_count }},
+          {{ boarders_count }},
+          {{ male_students_count }},
+          {{ female_students_count }}
+        ],
+        backgroundColor: [
+          'rgba(54, 162, 235, 0.5)',  // Blue for Day Students
+          'rgba(255, 206, 86, 0.5)',  // Yellow for Boarders
+          'rgba(75, 192, 192, 0.5)',  // Teal for Male Students
+          'rgba(255, 99, 132, 0.5)'   // Pink for Female Students
+        ],
+        borderColor: [
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(75, 192, 192, 1)',
+          'rgba(255, 99, 132, 1)'
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
         }
       }
     }
@@ -189,7 +184,7 @@
 </script>
 
 <script>
-  // Function to get and display the current time
+  // Update Time for the Dashboard
   function updateTime() {
     const now = new Date();
     const hours = now.getHours().toString().padStart(2, '0');
@@ -199,11 +194,7 @@
 
     document.getElementById('current-time').innerText = currentTime;
   }
-
-  // Call the function once when the page loads
   updateTime();
-
-  // Update the time every second
   setInterval(updateTime, 1000);
 </script>
 

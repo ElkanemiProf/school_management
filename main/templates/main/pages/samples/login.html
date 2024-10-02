@@ -1,23 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% load static %}
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Login</title>
     <!-- Bootstrap CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Add custom CSS for background and form styling -->
+    <style>
+        /* Set the background image */
+        body {
+    background-image: url("{% static 'assets/images/logo3.jpg' %}");
+    background-color: #C0C3B3; /* Set background color to #C0C3B3 */
+    height: 100vh; /* Full viewport height */
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
+  
+
+.auth-form-light {
+    background-color: rgba(255, 255, 255, 0.2); /* Transparency for the form */
+    border-radius: 10px;
+    padding: 30px;
+    border: none; /* Remove any borders */
+    box-shadow: none; /* Remove shadow */
+    max-width: 400px; /* Maximum width */
+    min-width: 320px; /* Minimum width */
+    width: 100%;
+    margin-right: 50px; /* Spacing from the right, if needed */
+}
+
+/* Remove potential container borders */
+.container-scroller,
+.container-fluid,
+.content-wrapper {
+    border: none; /* Ensure no borders are applied on container elements */
+    padding: 0;
+    margin: 0;
+}
+
+
+        /* Button color matching the logo */
+        .auth-form-btn {
+            background-color: #3498db; /* Match with the logo color */
+            border: none;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        .auth-form-btn:hover {
+            background-color: #2980b9; /* Darker shade on hover */
+        }
+
+        /* Link color */
+        .auth-link, .text-primary {
+            color: #2ecc71; /* Soft green matching logo */
+        }
+
+        .auth-link:hover, .text-primary:hover {
+            color: #27ae60; /* Darker green on hover */
+        }
+
+        /* Fix input form styles */
+        .form-control {
+            margin-bottom: 20px;
+            height: 45px;
+            font-size: 16px;
+        }
+
+        /* Center the form within the screen */
+        .content-wrapper {
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Styling for the subheading */
+        .subheading {
+            color: #ffffff; /* White stands out on dark background */
+            font-weight: bold;
+            font-size: 18px; /* Make it bolder */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 576px) {
+            .auth-form-light {
+                padding: 20px;
+                max-width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
+    
+
     <div class="container-scroller">
         <div class="container-fluid page-body-wrapper full-page-wrapper">
             <div class="content-wrapper d-flex align-items-center auth px-0">
                 <div class="row w-100 mx-0">
-                    <div class="col-lg-4 mx-auto">
+                    <div class="col-lg-4 col-md-6 col-sm-8 auth-form-light"> <!-- Form container -->
                         <div class="auth-form-light text-left py-5 px-4 px-sm-5">
-                            <h4>Hello! let's get started</h4>
-                            <h6 class="fw-light">Sign in to continue.</h6>
-
+                            <h4>Hello! Let's get started</h4>
+                            <h6 class="fw-light subheading">Sign in to continue.</h6> <!-- Bold and white for better contrast -->
+    
                             <!-- Display error messages if present -->
                             {% if messages %}
                                 <div class="alert alert-danger" role="alert">
@@ -26,7 +120,7 @@
                                     {% endfor %}
                                 </div>
                             {% endif %}
-
+    
                             <form method="POST" class="pt-3">
                                 {% csrf_token %}
                                 <div class="form-group">
@@ -39,7 +133,6 @@
                                     <button type="submit" class="btn btn-block btn-primary btn-lg fw-medium auth-form-btn">SIGN IN</button>
                                 </div>
                                 <div class="my-2 d-flex justify-content-between align-items-center">
-                                    
                                     <a href="#" class="auth-link text-black">Forgot password?</a>
                                 </div>
                                 <div class="text-center mt-4 fw-light"> Don't have an account? 
@@ -52,7 +145,7 @@
             </div>
         </div>
     </div>
-
+    
     <!-- Bootstrap JS and dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

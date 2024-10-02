@@ -1,6 +1,34 @@
 {% extends 'main/base.html' %}
+{% load static %}
 
 {% block content %}
+<style>
+    body {
+        background-image: url("{% static 'assets/images/look.webp' %}"); /* Replace with your background image path */
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed; /* Keeps the background fixed while scrolling */
+    }
+
+    .container {
+        background-color: rgba(255, 255, 255, 0.8); /* Adds a transparent white background to the table */
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    table {
+        background-color: #fff; /* Ensure the table remains white */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Add some spacing for the form */
+    form {
+        margin: 0;
+    }
+</style>
+
 <div class="container mt-5">
     <h2 class="mb-4">Incident List</h2>
     <table class="table table-bordered">
@@ -37,5 +65,4 @@
         </tbody>
     </table>
 </div>
-{% endblock %}
-
+{% endblock content %}

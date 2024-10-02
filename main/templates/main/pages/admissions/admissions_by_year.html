@@ -1,0 +1,67 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col text-center">
+            <h2 class="display-4">Admissions for {{ year }}</h2>
+            <p class="lead">Below is the list of students admitted in the year {{ year }}.</p>
+            <a href="{% url 'admissions_list' %}" class="btn btn-secondary mb-4">
+                <i class="fas fa-arrow-left"></i> Back to Admissions by Year
+            </a>
+        </div>
+    </div>
+
+    {% if admissions %}
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="text-right mb-3">
+                <strong>Total Admissions for {{ year }}: {{ admissions|length }}</strong>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Admission Date</th>
+                            <th>Class</th>
+                            <th>Gender</th>
+                            <th>Residency Status</th>
+                            <th>School Fees Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for admission in admissions %}
+                        <tr>
+                            <td>{{ admission.first_name }}</td>
+                            <td>{{ admission.last_name }}</td>
+                            <td>{{ admission.admission_date|date:"F j, Y" }}</td>
+                            <td>{{ admission.school_class }}</td>
+                            <td>{{ admission.gender|title }}</td>
+                            <td>{{ admission.residency_status|title }}</td>
+                            <td>
+                                {% if admission.school_fees_status == 'paid' %}
+                                    <span class="badge badge-success">Paid</span>
+                                {% else %}
+                                    <span class="badge badge-danger">Unpaid</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="alert alert-warning" role="alert">
+                No admissions found for the year {{ year }}.
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

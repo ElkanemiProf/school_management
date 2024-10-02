@@ -1,10 +1,43 @@
 {% extends 'main/base.html' %}
+{% load static %}
 
 {% block title %}Student Payment Status{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
+<style>
+    /* Set the background image and adjust its appearance */
+    body {
+        background-image: url("{% static 'assets/images/fees.jpeg' %}"); /* Add your image path */
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        min-height: 100vh; /* Ensure it covers the full page height */
+    }
+
+    .content-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+
+    /* Styling for the form section */
+    .form-section {
+        background-color: rgba(255, 255, 255, 0.85); /* Slight transparency for better background visibility */
+        padding: 30px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        width: 100%; /* Ensure it is responsive */
+        max-width: 600px; /* Limit the max width */
+    }
+
+    .form-section h3, .form-section h4 {
+        color: #333; /* Dark text color for readability */
+    }
+</style>
+
+<div class="content-wrapper">
+    <div class="form-section">
         <h3>Student Payment Status</h3>
         <form method="get" action="{% url 'student_payment_status' %}">
             <!-- Search by Name -->

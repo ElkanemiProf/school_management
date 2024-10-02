@@ -1,12 +1,45 @@
 from django import forms
 from .models import MaintenanceRequest
-from .models import Student
+from .models import Student,MaintenanceRequest,Note, Club, Teacher,SchoolClass,Student
+from django.forms import inlineformset_factory
+
+from .models import Event, Note
+NoteFormSet = inlineformset_factory(Event, Note, fields=['content'], extra=1, can_delete=True)
+
 
 from django import forms
-from .models import MaintenanceRequest
+from .models import Club
 
-from django import forms
-from .models import MaintenanceRequest
+class SimpleClubForm(forms.ModelForm):
+    student_names = forms.CharField(
+        label="Student Names (comma-separated)",
+        widget=forms.TextInput(attrs={"placeholder": "Enter student names, separated by commas (e.g., Ada Hayes, John Doe)"}),
+        required=False
+    )
+    teacher_names = forms.CharField(
+        label="Teacher Names (comma-separated)",
+        widget=forms.TextInput(attrs={"placeholder": "Enter teacher names, separated by commas (e.g., John Smith, Jane Doe)"}),
+        required=False
+    )
+
+    class Meta:
+        model = Club
+        fields = ['name', 'description']
+
+    def clean_student_names(self):
+        student_names = self.cleaned_data.get('student_names', '')
+        if not student_names:
+            return []
+        student_list = [name.strip() for name in student_names.split(',')]
+        return student_list
+
+    def clean_teacher_names(self):
+        teacher_names = self.cleaned_data.get('teacher_names', '')
+        if not teacher_names:
+            return []
+        teacher_list = [name.strip() for name in teacher_names.split(',')]
+        return teacher_list
+
 
 class MaintenanceRequestForm(forms.ModelForm):
     class Meta:
@@ -74,7 +107,6 @@ from django import forms
 from django.contrib.auth.models import User
 from main.models import UserProfile
 
-
 class RegistrationForm(forms.ModelForm):
     username = forms.CharField(max_length=150, label='Username')
     email = forms.EmailField(label='Email')
@@ -126,8 +158,7 @@ from .models import Event
 class EventForm(forms.ModelForm):
     class Meta:
         model = Event
-        fields = ['name', 'date']  # Remove 'description' since it's no longer in the model
-
+        fields = ['name', 'date']  # Ensure 'name' and 'date' match the Event model
 from django import forms
 from .models import AttendanceImage
 

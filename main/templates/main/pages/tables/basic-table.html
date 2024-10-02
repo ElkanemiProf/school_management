@@ -1,37 +1,151 @@
 {% extends 'main/base.html' %}
-
+{% load static %}
 {% block content %}
+<style>
+    body {
+        background-color: #e9ecef;
+        font-family: 'Roboto', sans-serif;
+    }
+
+    .class-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 30px;
+    }
+
+    .table-section {
+        width: 60%;
+        background-color: #fff;
+        padding: 25px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .table-section:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .table-section h4 {
+        font-weight: 700;
+        color: #333;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .table {
+        width: 100%;
+        margin-bottom: 1rem;
+        color: #212529;
+        border-collapse: collapse;
+    }
+
+    .table th, .table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .table th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        color: #555;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 123, 255, 0.05);
+        cursor: pointer;
+    }
+
+    .table a.badge {
+        background-color: #28a745;
+        color: white;
+        padding: 8px 15px;
+        font-size: 14px;
+        border-radius: 50px;
+        text-decoration: none;
+        transition: background-color 0.2s;
+    }
+
+    .table a.badge:hover {
+        background-color: #218838;
+    }
+
+    .image-section {
+        width: 35%;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        align-items: center;
+    }
+
+    .image-section img {
+        width: 100%;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s;
+    }
+
+    .image-section img:hover {
+        transform: scale(1.05);
+    }
+
+    .card {
+        background-color: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        transition: transform 0.3s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+
 <div class="content-wrapper">
-    <div class="row">
-        <div class="col-lg-12 grid-margin stretch-card">
-            <div class="card">
-                <div class="card-body">
-                    <h4 class="card-title">Hoverable School Classes</h4>
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Level</th>
-                                    <th>Section</th>
-                                    <th>Number of Students</th>
-                                    <th>Students</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for class in class_data %}
-                                <tr>
-                                    <td>{{ class.level }}</td>
-                                    <td>{{ class.section }}</td>
-                                    <td>{{ class.student_count }}</td>
-                                    <td><a class="badge badge-success"href="{{ class.view_students_url }}">View Students</a></td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+    <div class="class-container">
+        <!-- Stylish table section -->
+        <div class="table-section">
+            <h4 class="card-title">Hoverable School Classes</h4>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Level</th>
+                            <th>Section</th>
+                            <th>Number of Students</th>
+                            <th>Vacant Spaces</th>
+                            <th>Students</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for class in class_data %}
+                        <tr>
+                            <td>{{ class.level }}</td>
+                            <td>{{ class.section }}</td>
+                            <td>{{ class.student_count }}</td>
+                            <td>{{ class.vacant_spaces }}</td>
+                            <td><a class="badge badge-success" href="{{ class.view_students_url }}">View Students</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
+        </div>
+
+        <!-- Stylish image section on the right -->
+        <div class="image-section">
+            <img src="{% static 'assets/images/class1.webp' %}" alt="Class 1">
+            <img src="{% static 'assets/images/class2.webp' %}" alt="Class 2">
         </div>
     </div>
 </div>
-{% endblock content %}
+{% endblock %}

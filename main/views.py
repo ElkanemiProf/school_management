@@ -8,18 +8,65 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from main.models import Student, Grade, SchoolClass, MaintenanceRequest, Budget, IncidentReport, UserProfile,Teacher
 from main.forms import MaintenanceRequestForm, StudentForm, UploadClassListForm, IncidentReportForm, BudgetForm, RegistrationForm
 import pandas as pd
+from django.views.generic.edit import CreateView
+from django.urls import reverse_lazy
 import csv
 # Import the Subject model at the top of the views.py file
-from .models import Subject,IncidentReport  
+from .models import Subject,IncidentReport, Club  
 from django.utils import timezone
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from main.models import UserProfile
+from main.models import UserProfile,Notification
 import datetime
+from datetime import datetime
 from django.shortcuts import render, redirect
-from .forms import AttendanceImageForm
+from .forms import AttendanceImageForm,NoteFormSet
 from .models import AttendanceImage
+from .models import Event, Note,Admissions
+from .forms import EventForm
+from django.utils import timezone
+from datetime import timedelta
+import logging
+from django.db.models import Count
+from django.db.models.functions import ExtractYear
+
+class EventCreateView(CreateView):
+    model = Event
+    form_class = EventForm
+    template_name = 'main/pages/forms/add_event.html'
+    success_url = reverse_lazy('event_list')  # Redirect to the event list after successful submission
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['formset'] = NoteFormSet(self.request.POST)
+        else:
+            context['formset'] = NoteFormSet()
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        formset = context['formset']
+
+        if form.is_valid() and formset.is_valid():
+            event = form.save()  # Save the event
+            notes = formset.save(commit=False)  # Save formset without committing to the database
+
+            for note in notes:
+                note.event = event  # Associate the note with the event
+                note.save()
+
+            messages.success(self.request, "Event and notes created successfully!")  # Success message
+            return redirect(self.success_url)
+        else:
+            messages.error(self.request, "There was an error saving the event.")  # Error message
+            return self.render_to_response(context)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Form is invalid. Please correct the errors and try again.")
+        return super().form_invalid(form)
+
 
 @login_required
 def approve_users(request):
@@ -146,21 +193,21 @@ def change_maintenance_status(request, pk):
     return redirect('maintenance_request_list')
 
 # Dashboard view
-
-
-
 # Ensure only users with specific roles can access
 @user_passes_test(lambda u: u.is_authenticated and hasattr(u, 'userprofile') and u.userprofile.role in ['teacher', 'principal'])
 @login_required
+ # Ensure the Note model is imported
+
+
+
 def dashboard_view(request):
     user = request.user
-    
+
     # Safely fetch the user's profile and role
     try:
         user_profile = user.userprofile
         user_role = user_profile.role  # Fetch the role from the UserProfile
     except AttributeError:
-        # Handle cases where the user does not have a userprofile or is anonymous
         return redirect('login')  # Redirect to login or another appropriate page
 
     # Get the current time
@@ -174,29 +221,7 @@ def dashboard_view(request):
     else:
         greeting = "Good Evening"
 
-    # Construct the full greeting with the user's role
     full_greeting = f"{greeting}, {request.user.first_name} {request.user.last_name} ({user_role})"
-
-    # Count unresolved incidents
-    pending_incidents_count = IncidentReport.objects.filter(resolved=False).count()
-
-    important_events = Event.objects.all()
-
-    # Get the current day of the week (0 = Monday, 6 = Sunday)
-    day_of_week = datetime.datetime.now().weekday()
-
-    # Define a list of quotes, one for each day of the week
-    daily_quotes = {
-        0: "Start your week with a positive mindset. Mondays are for fresh beginnings.",
-        1: "Keep going. The journey is as important as the destination. Happy Tuesday!",
-        2: "Halfway through! Focus on progress, not perfection. It’s Wednesday.",
-        3: "Stay strong, the weekend is near. Thursday is a day to push forward.",
-        4: "Believe in yourself. It’s Friday! Time to finish strong.",
-        5: "Rest and recharge. Saturdays are for relaxation and reflection.",
-        6: "Sundays are for gratitude. Reflect on your week and prepare for the next."
-    }
-    # Get the quote for today based on the day of the week
-    quote_of_the_day = daily_quotes.get(day_of_week, "Make the most of today.")
 
     # Count total students, teachers, and other student categories
     total_students = Student.objects.count()
@@ -212,28 +237,68 @@ def dashboard_view(request):
     allocated_amounts = [float(budget.allocated_amount) for budget in budgets]
     spent_amounts = [float(budget.spent_amount) for budget in budgets]
 
-    # Fetch maintenance requests (you can modify this query to fit your needs)
-    maintenance_requests = MaintenanceRequest.objects.all()  # You can filter if needed
+    # Admissions data from the Student model for the current year (2023)
+    current_year = datetime.now().year
+    current_year_admissions = Student.objects.filter(admission_date__year=2023).count()
+
+    # Admissions per year (last 6 years)
+    admissions_per_year = Student.objects.filter(
+        admission_date__year__gte=current_year - 6
+    ).annotate(
+        admission_year=ExtractYear('admission_date')
+    ).values('admission_year').annotate(
+        count=Count('id')
+    ).order_by('admission_year')
+
+    # Extract years and counts into separate lists
+    admission_years = [entry['admission_year'] for entry in admissions_per_year]
+    admission_counts = [entry['count'] for entry in admissions_per_year]
+
+    # Count pending incidents
+    pending_incidents = IncidentReport.objects.filter(resolved=False)
+    pending_incidents_count = pending_incidents.count()
+
+    # Track newly created budgets (last 30 days)
+    new_budgets = Budget.objects.filter(created_at__gte=timezone.now() - timedelta(days=30))
+    new_budgets_count = new_budgets.count()
+
+    # Track newly created events (last 30 days)
+    new_events = Event.objects.filter(created_at__gte=timezone.now() - timedelta(days=30))
+    new_events_count = new_events.count()
+
+    # Track newly created maintenance requests (last 30 days)
+    new_maintenance_requests = MaintenanceRequest.objects.filter(date_requested__gte=timezone.now() - timedelta(days=30))
+    new_maintenance_requests_count = new_maintenance_requests.count()
 
     # Prepare the context to pass to the template
     context = {
-        'greeting': full_greeting,  # Pass the dynamic greeting to the template
-        'pending_incidents_count': pending_incidents_count,
+        'greeting': full_greeting,
         'total_students': total_students,
         'total_teachers': total_teachers,
         'day_students_count': day_students_count,
         'boarders_count': boarders_count,
         'male_students_count': male_students_count,
         'female_students_count': female_students_count,
-        'maintenance_requests': maintenance_requests,  # Pass the maintenance requests to the template
-        'important_events': important_events,
-        'quote_of_the_day': quote_of_the_day,
-        'categories': categories,  # For the budget chart
-        'allocated_amounts': allocated_amounts,  # For the budget chart
-        'spent_amounts': spent_amounts,  # For the budget chart
+        'current_year_admissions': current_year_admissions,
+        'admission_years': admission_years,  # Pass the list of years
+        'admission_counts': admission_counts,  # Pass the list of counts
+        'categories': categories,
+        'allocated_amounts': allocated_amounts,
+        'spent_amounts': spent_amounts,
+        'pending_incidents_count': pending_incidents_count,  # Pass pending incidents count
+        'new_budgets_count': new_budgets_count,  # Pass newly created budgets count
+        'new_events_count': new_events_count,  # Pass newly created events count
+        'new_maintenance_requests_count': new_maintenance_requests_count,  # Pass newly created maintenance requests count
+        'new_pending_incidents': pending_incidents,  # Pass pending incidents list
+        'new_budgets': new_budgets,  # Pass new budgets list
+        'new_events': new_events,  # Pass new events list
+        'new_maintenance_requests': new_maintenance_requests,  # Pass new maintenance requests list
     }
 
     return render(request, 'main/index.html', context)
+
+
+
 
 # View for displaying students in a class
 @login_required
@@ -278,17 +343,26 @@ def add_student(request, level, section):
 
 # View for updating a student's information
 @login_required
+
+
 def update_student(request, class_id, pk):
     student = get_object_or_404(Student, pk=pk)
+    
+    # Ensure class_id is passed correctly
+    school_class = get_object_or_404(SchoolClass, pk=class_id)
+    
     if request.method == 'POST':
         form = StudentForm(request.POST, instance=student)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Student information updated successfully.')
-            return redirect('view_students', class_id=class_id)
+            messages.success(request, f"Student {student.first_name} {student.last_name}'s details were updated successfully!")
+            return redirect('view_students', class_id=school_class.id)
+        else:
+            messages.error(request, "There was an error updating the student details. Please check the form.")
     else:
         form = StudentForm(instance=student)
-    return render(request, 'main/pages/forms/update_student.html', {'form': form})
+    
+    return render(request, 'main/pages/forms/update_student.html', {'form': form, 'student': student})
 
 # View for deleting a student
 @login_required
@@ -439,18 +513,23 @@ def registration_success(request):
     return render(request, 'main/pages/samples/registration_success.html')
 
 @login_required
+
 def hoverable_school_classes_view(request):
     # Fetch all the school classes
     school_classes = SchoolClass.objects.all()
 
     # Prepare context data
     class_data = []
+    max_students = 35  # Maximum capacity of students per class
+    
     for school_class in school_classes:
         student_count = school_class.students.count()  # Assuming you have a reverse relation `students`
+        vacant_spaces = max_students - student_count  # Calculate vacant spaces
         class_data.append({
             'level': school_class.level,
             'section': school_class.section,
             'student_count': student_count,
+            'vacant_spaces': vacant_spaces,  # Add vacant spaces to class data
             'view_students_url': reverse('view_students', args=[school_class.id])
         })
 
@@ -727,40 +806,52 @@ def permission_denied_view(request, exception=None):
 
 
 from django.shortcuts import render
-from .models import Event
+
 
 def event_list(request):
-    events = Event.objects.all().order_by('date')  # Fetch events, ordered by date
+    events = Event.objects.prefetch_related('notes').all()  # Fetch events, ordered by date
     context = {
         'events': events
     }
     return render(request, 'main/pages/tables/event_list.html', context)
 
-from django.shortcuts import render, redirect
-from .models import Event
-from .forms import EventForm
+
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
+
 
 def add_event(request):
+    print("View has been called")  # Check if the view is called
+
     if request.method == 'POST':
+        print("POST request received")  # Check if the form is submitted
+
         form = EventForm(request.POST)
+
         if form.is_valid():
-            form.save()
-            return redirect('event_list')  # Redirect to the event list after submission
+            print("Form is valid")  # Check if form validation passes
+            event = form.save()
+
+            # Handle notes
+            note_contents = request.POST.getlist('note_content')
+            print("Notes received:", note_contents)  # Print notes to ensure they're captured
+
+            for content in note_contents:
+                if content.strip():
+                    Note.objects.create(event=event, content=content)
+
+            messages.success(request, 'Event and notes created successfully!')
+            return redirect('event_list')
+        else:
+            print("Form is invalid:", form.errors)  # Print form errors to console
+            messages.error(request, "There was an error saving the event.")
     else:
         form = EventForm()
 
-    return render(request, 'main/pages/forms/add_event.html', {'form': form})
+    return render(request, 'main/pages/forms/add_event.html', {
+        'form': form,
+    })
 
-
-
-    
-
-    
-
-    
-
-
-    
 
 from django.http import JsonResponse
 
@@ -781,21 +872,54 @@ def student_search(request):
         return JsonResponse(results, safe=False)
     return JsonResponse({'error': 'Not an ajax request'}, status=400)
 
-from django.shortcuts import render, get_object_or_404, redirect
-from .models import Event
-from .forms import EventForm
+
 
 def edit_event(request, id):
+    print("View has been called")  # Debugging log
+
+    # Retrieve the event to be edited
     event = get_object_or_404(Event, id=id)
+    existing_notes = event.notes.all()  # Get all existing notes linked to the event
+
     if request.method == 'POST':
-        form = EventForm(request.POST, instance=event)
+        print("POST request received")  # Debugging log
+
+        form = EventForm(request.POST, instance=event)  # Bind the form to the existing event
+
         if form.is_valid():
-            form.save()
-            return redirect('event_list')  # Redirect back to the event list after editing
+            print("Form is valid")  # Debugging log
+            event = form.save()  # Save the updated event
+
+            # Handle notes
+            note_contents = request.POST.getlist('note_content')
+            print("Notes received:", note_contents)  # Debugging log
+
+            # Clear existing notes before saving updated ones
+            event.notes.all().delete()
+
+            # Create new notes or update the existing ones
+            for content in note_contents:
+                if content.strip():  # Avoid saving empty notes
+                    Note.objects.create(event=event, content=content)
+
+            messages.success(request, 'Event and notes updated successfully!')
+            return redirect('event_list')  # Redirect to event list after successful update
+        else:
+            print("Form is invalid:", form.errors)  # Debugging log
+            messages.error(request, "There was an error updating the event.")
     else:
         form = EventForm(instance=event)
 
-    return render(request, 'main/pages/forms/edit_event.html', {'form': form, 'event': event})
+    # Prepare the existing notes to pre-fill the form fields
+    note_contents = [note.content for note in existing_notes]
+
+    return render(request, 'main/pages/forms/edit_event.html', {
+        'form': form,
+        'note_contents': note_contents,  # Pass existing notes to the template
+        'event': event
+    })
+
+
 
 from django.shortcuts import get_object_or_404, redirect
 from .models import Event
@@ -940,3 +1064,151 @@ def search_attendance_records(request):
         'class_names': class_names,  # Pass the list of class names to the template
         'no_results_message': no_results_message  # Pass the message to the template
     })
+
+
+def student_details(request, pk):
+    student = get_object_or_404(Student, pk=pk)
+    return render(request, 'main/pages/tables/student_details.html', {'student': student})
+
+
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Club
+from .forms import SimpleClubForm
+
+# List all clubs
+def list_clubs(request):
+    clubs = Club.objects.all()
+    return render(request, 'main/pages/clubs/list_clubs.html', {'clubs': clubs})
+
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import Club, Student, Teacher
+from .forms import SimpleClubForm
+
+def create_club(request):
+    if request.method == 'POST':
+        form = SimpleClubForm(request.POST)
+        if form.is_valid():
+            club = form.save(commit=False)
+
+            student_names = form.cleaned_data['student_names']
+            teacher_names = form.cleaned_data['teacher_names']
+
+            # Handle students
+            student_objects = []
+            for full_name in student_names:
+                try:
+                    first_name, last_name = full_name.split(' ', 1)
+                    # Use filter to get all students matching the name
+                    students = Student.objects.filter(first_name=first_name, last_name=last_name)
+                    if students.exists():
+                        student_objects.extend(students)  # Add all matching students
+                    else:
+                        messages.error(request, f"Student '{full_name}' does not exist.")
+                        return render(request, 'main/pages/clubs/club_form.html', {'form': form})
+                except ValueError:
+                    messages.error(request, f"Student name '{full_name}' must include both first and last name.")
+                    return render(request, 'main/pages/clubs/club_form.html', {'form': form})
+
+            # Handle teachers
+            teacher_objects = []
+            for full_name in teacher_names:
+                try:
+                    first_name, last_name = full_name.split(' ', 1)
+                    # Use filter to get all teachers matching the name
+                    teachers = Teacher.objects.filter(user__first_name=first_name, user__last_name=last_name)
+                    if teachers.exists():
+                        teacher_objects.extend(teachers)  # Add all matching teachers
+                    else:
+                        messages.error(request, f"Teacher '{full_name}' does not exist.")
+                        return render(request, 'main/pages/clubs/club_form.html', {'form': form})
+                except ValueError:
+                    messages.error(request, f"Teacher name '{full_name}' must include both first and last name.")
+                    return render(request, 'main/pages/clubs/club_form.html', {'form': form})
+
+            # Save the club
+            club.save()
+
+            # Assign students and teachers
+            club.students.set(student_objects)
+            club.teachers.set(teacher_objects)
+            
+            messages.success(request, "Club created successfully!")
+            return redirect('list_clubs')  # Redirect to club list view
+    else:
+        form = SimpleClubForm()
+
+    return render(request, 'main/pages/clubs/club_form.html', {'form': form})
+    
+
+
+def view_club(request, pk):
+    club = get_object_or_404(Club, pk=pk)  # Use pk here
+    
+    # Get the students and teachers
+    students = club.students.all()
+    teachers = club.teachers.all()
+    
+    return render(request, 'main/pages/clubs/view_club.html', {
+        'club': club,
+        'students': students,
+        'teachers': teachers
+    })
+
+
+
+def edit_club(request, pk):
+    club = get_object_or_404(Club, pk=pk)
+
+    if request.method == 'POST':
+        form = SimpleClubForm(request.POST, instance=club)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Club updated successfully!")
+            return redirect('list_clubs')
+    else:
+        form = SimpleClubForm(instance=club)
+
+    return render(request, 'main/pages/clubs/club_form.html', {'form': form, 'club': club})
+
+# Delete a club
+def delete_club(request, pk):
+    club = get_object_or_404(Club, pk=pk)
+    if request.method == 'POST':
+        club.delete()
+        return redirect('list_clubs')
+    return render(request, 'main/pages/clubs/delete_club.html', {'club': club})
+
+
+
+def admissions_list(request):
+   # Fetch the admission years and count the number of admissions per year
+    admissions_years = Student.objects.annotate(year=ExtractYear('admission_date')) \
+                                      .values('year') \
+                                      .annotate(count=Count('id')) \
+                                      .order_by('-year')
+    
+    context = {
+        'admissions_years': admissions_years
+    }
+    return render(request, 'main/pages/admissions/admissions_list.html', context)
+
+
+
+def admissions_by_year(request, year):
+    # Fetch admissions for the given year
+    admissions = Student.objects.filter(admission_date__year=year)
+
+    context = {
+        'year': year,
+        'admissions': admissions,
+    }
+    return render(request, 'main/pages/admissions/admissions_by_year.html', context)
+
+
+
+
+def mark_notifications_as_read(request):
+    Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+    return redirect('dashboard')  # Redirect to the dashboard after marking as read

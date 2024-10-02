@@ -2,41 +2,90 @@
 {% load static %}
 
 {% block content %}
+<style>
+    body {
+        background-color: #d0e6f1; /* Light blue background */
+    }
+
+    .visualization-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .charts-section {
+        width: 60%; /* Adjust width of the charts container */
+    }
+
+    .image-section {
+        width: 40%; /* Adjust width of the image container */
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px; /* Add space between images */
+    }
+
+    .image-section img {
+        width: 46%; /* Adjust size of each image */
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease;
+    }
+
+    .image-section img:hover {
+        transform: scale(2.05); /* Enlarge image slightly on hover */
+    }
+</style>
+
 <div class="container-fluid page-body-wrapper">
     <div class="main-panel">
         <div class="content-wrapper">
-            <!-- Stacked Bar Chart - Full Width -->
-            <div class="row">
-                <div class="col-lg-12 grid-margin stretch-card">
-                    <div class="card">
-                        <div class="card-body">
-                            <h4 class="card-title">Student Distribution by Gender and Class</h4>
-                            <canvas id="stackedBarChart"></canvas>
+            <!-- Visualization Container: Charts on one side, Images on the other -->
+            <div class="visualization-container">
+                <!-- Charts Section -->
+                <div class="charts-section">
+                    <!-- Stacked Bar Chart - Full Width -->
+                    <div class="row">
+                        <div class="col-lg-12 grid-margin stretch-card">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="card-title">Student Distribution by Gender and Class</h4>
+                                    <canvas id="stackedBarChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pie and Doughnut Charts Side by Side -->
+                    <div class="row">
+                        <!-- Pie Chart - Gender Distribution -->
+                        <div class="col-lg-6 grid-margin stretch-card">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="card-title">Gender Distribution</h4>
+                                    <canvas id="genderDistributionChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Doughnut Chart - Day Students vs Boarders -->
+                        <div class="col-lg-6 grid-margin stretch-card">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="card-title">Day Students vs Boarders</h4>
+                                    <canvas id="residencyDistributionChart"></canvas>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Pie and Doughnut Charts Side by Side -->
-            <div class="row">
-                <!-- Pie Chart - Gender Distribution -->
-                <div class="col-lg-6 grid-margin stretch-card">
-                    <div class="card">
-                        <div class="card-body">
-                            <h4 class="card-title">Gender Distribution</h4>
-                            <canvas id="genderDistributionChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Doughnut Chart - Day Students vs Boarders -->
-                <div class="col-lg-6 grid-margin stretch-card">
-                    <div class="card">
-                        <div class="card-body">
-                            <h4 class="card-title">Day Students vs Boarders</h4>
-                            <canvas id="residencyDistributionChart"></canvas>
-                        </div>
-                    </div>
+                <!-- Image Section -->
+                <div class="image-section">
+                    <img src="{% static 'assets/images/pic1.webp' %}" alt="Picture 1">
+                    <img src="{% static 'assets/images/pic2.webp' %}" alt="Picture 2">
+                    <img src="{% static 'assets/images/pic3.webp' %}" alt="Picture 3">
+                    <img src="{% static 'assets/images/pic4.webp' %}" alt="Picture 4">
                 </div>
             </div>
         </div>
@@ -45,9 +94,6 @@
 
 <!-- If using CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<!-- OR, if using local copy -->
-<!-- <script src="{% static 'js/chart.js' %}"></script> -->
 
 <script>
     // Stacked Bar Chart - Student Distribution by Gender and Class

@@ -1,0 +1,48 @@
+{% extends 'main/base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <h4 class="card-title">Create a New Club</h4>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Club Name -->
+                        <div class="form-group mb-3">
+                            <label for="name">Club Name</label>
+                            {{ form.name }}
+                        </div>
+
+                        <!-- Club Description -->
+                        <div class="form-group mb-3">
+                            <label for="description">Description</label>
+                            {{ form.description }}
+                        </div>
+
+                        <!-- Student Names -->
+                        <div class="form-group mb-3">
+                            <label for="student_names">Student Names (comma-separated)</label>
+                            {{ form.student_names }}
+                        </div>
+
+                        <!-- Teacher Names -->
+                        <div class="form-group mb-3">
+                            <label for="teacher_names">Teacher Names (comma-separated)</label>
+                            {{ form.teacher_names }}
+                        </div>
+
+                        <!-- Submit and Cancel Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <a href="{% url 'list_clubs' %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

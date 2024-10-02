@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
+
+
 class UserProfile(models.Model):
     ROLE_CHOICES = [
         ('admin', 'Admin'),
@@ -86,6 +88,17 @@ class Student(models.Model):
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
+    
+class Admissions(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='admissions')
+    admission_date = models.DateField(default=timezone.now)
+    admission_status = models.CharField(max_length=50, choices=[('pending', 'Pending'), ('accepted', 'Accepted'), ('rejected', 'Rejected')])
+    school_class = models.ForeignKey(SchoolClass, on_delete=models.CASCADE)
+    admission_remarks = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.student.first_name} {self.student.last_name} - {self.school_class}"
+
 
 class Attendance(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='attendance_records')
@@ -201,9 +214,17 @@ class Grade(models.Model):
 class Event(models.Model):
     name = models.CharField(max_length=100)  # Event name
     date = models.DateField()  # Event date
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.name} ({self.date})"
+    
+class Note(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="notes")  # Link each note to an event
+    content = models.TextField()  # Note content
+
+    def __str__(self):
+        return f"Note for {self.event.name}"
 class AuditTrail(models.Model):
     ACTION_CHOICES = [
         ('Create', 'Create'),
@@ -227,6 +248,8 @@ class Budget(models.Model):
     spent_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     remaining_amount = models.DecimalField(max_digits=10, decimal_places=2, editable=False)
     description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)  # Automatically set when the budget is created
+
 
     def save(self, *args, **kwargs):
         self.remaining_amount = self.allocated_amount - self.spent_amount
@@ -270,3 +293,21 @@ def track_fee_payment(sender, instance, created, **kwargs):
     )
 
 
+
+class Club(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    students = models.ManyToManyField(Student)
+    teachers = models.ManyToManyField(Teacher)
+    def __str__(self):
+        return self.name
+
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.TextField()
+    created_at = models.DateTimeField(default=timezone.now)
+    is_read = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Notification for {self.user.username} - {self.message[:20]}"

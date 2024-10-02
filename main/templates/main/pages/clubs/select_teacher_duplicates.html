@@ -1,0 +1,21 @@
+{% extends 'main/base.html' %}
+{% block content %}
+<h4>Select the correct teacher for each duplicate name:</h4>
+
+<form method="post">
+    {% csrf_token %}
+    {% for duplicate in teacher_duplicates %}
+        <h5>{{ duplicate.name }}:</h5>
+        <ul>
+            {% for teacher in duplicate.teachers %}
+                <li>
+                    <input type="radio" name="selected_teachers_{{ forloop.counter }}" value="{{ teacher.id }}">
+                    {{ teacher.first_name }} {{ teacher.last_name }} (ID: {{ teacher.teacher_id }})
+                </li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
+    <button type="submit">Submit</button>
+</form>
+
+{% endblock %}

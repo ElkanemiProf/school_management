@@ -1,12 +1,48 @@
 <!-- teacher_list.html -->
 
 {% extends 'main/base.html' %}
+{% load static %}
 
 {% block title %}Teachers{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-10">
+<style>
+    body {
+        background-color: #F0F4F8; /* A cool, soft background color */
+    }
+
+    .teacher-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .teacher-table {
+        width: 55%; /* Adjust the width of the table container */
+        background-color: white;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    .teacher-image {
+        width: 50%; /* Adjust the width of the image container */
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .teacher-image img {
+        width: 100%;
+        border-radius: 8px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    }
+</style>
+
+<div class="teacher-container">
+    <!-- Table with teacher details on the left -->
+    <div class="teacher-table">
         <h2 class="mb-4">Teachers</h2>
         <table class="table table-bordered">
             <thead>
@@ -39,6 +75,11 @@
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+
+    <!-- Image of teachers on the right -->
+    <div class="teacher-image">
+        <img src="{% static 'assets/images/group.webp' %}" alt="Group of African Teachers">
     </div>
 </div>
 {% endblock content %}

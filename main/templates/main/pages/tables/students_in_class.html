@@ -1,41 +1,100 @@
 {% extends 'main/base.html' %}
-
+{% load static %}
 {% block content %}
-<div class="content-wrapper">
-    <h4 class="card-title">Students in Class {{ school_class.level }} {{ school_class.section }}</h4>
-    
-    <!-- Buttons for adding a new student, exporting, and uploading the class list -->
-    <div class="mb-4">
-        <a href="{{ add_student_url }}" class="btn btn-primary">Add New Student</a>
-        <a href="{{ export_excel_url }}" class="btn btn-secondary">Export Class List</a>
-        <a href="{% url 'upload_class_list' class_id=school_class.id %}" class="btn btn-info">Upload Class List</a>
-    </div>
+<style>
+    /* Apply a flexbox layout to ensure the background image stretches */
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+    }
 
-    <div class="table-responsive">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for student in students %}
-                <tr>
-                    <td>{{ student.first_name }}</td>
-                    <td>{{ student.last_name }}</td>
-                    <td>
-                        <a href="{% url 'update_student' class_id=school_class.id pk=student.pk %}" class="btn btn-warning btn-sm">Modify</a>
-                        <form action="{% url 'delete_student' class_id=school_class.id student_id=student.pk %}" method="post" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    body {
+        background-image: url("{% static 'assets/images/js.webp' %}"); /* Background image */
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        min-height: 100vh; /* Ensures the background covers the entire viewport */
+    }
+
+    .content-wrapper {
+        width: 100%;
+        min-height: 100vh; /* Ensures full page height */
+        display: flex;
+        justify-content: center;
+        align-items: flex-start; /* Ensures it starts from the top */
+        padding: 50px 0; /* Add some padding for better spacing */
+    }
+
+    /* Styling for the table section */
+    .table-section {
+        width: 75%; /* Adjust width for the table */
+        background-color: rgba(255, 255, 255, 0.3); /* Make the table section very transparent */
+        padding: 30px; /* Increase padding for better spacing */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        backdrop-filter: blur(5px); /* Add slight blur to make content more readable */
+    }
+
+    /* Styling for table hover effect */
+    table.table-hover tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.05); /* Slight hover effect for rows */
+    }
+
+    /* Ensure the table headings and content are visible */
+    table.table-hover thead th {
+        background-color: rgba(255, 255, 255, 0.5); /* Slightly more opaque for headers */
+        position: sticky;
+        top: 0;
+        z-index: 2;
+    }
+
+    /* Styling for buttons */
+    .btn {
+        margin-right: 10px;
+    }
+</style>
+
+<div class="content-wrapper">
+    <div class="table-section">
+        <h4 class="card-title">Students in Class {{ school_class.level }} {{ school_class.section }}</h4>
+        
+        <!-- Buttons for adding a new student, exporting, and uploading the class list -->
+        <div class="mb-4">
+            <a href="{{ add_student_url }}" class="btn btn-primary">Add New Student</a>
+            <a href="{{ export_excel_url }}" class="btn btn-secondary">Export Class List</a>
+            <a href="{% url 'upload_class_list' class_id=school_class.id %}" class="btn btn-info">Upload Class List</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ student.first_name }}</td>
+                        <td>{{ student.last_name }}</td>
+                        <td>
+                            <a href="{% url 'student_details' student.pk %}" class="btn btn-info btn-sm">View Details</a>
+                            <a href="{% url 'update_student' class_id=school_class.id pk=student.pk %}" class="btn btn-warning btn-sm">Modify</a>
+                            <form action="{% url 'delete_student' class_id=school_class.id student_id=student.pk %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

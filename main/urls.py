@@ -7,12 +7,13 @@ from .views import hoverable_school_classes_view, view_students, export_class_li
 from .views import student_distribution_view,report_incident,incident_list,resolve_incident
 from .views import submit_maintenance_request, maintenance_request_list, resolve_maintenance_request,change_maintenance_status,edit_maintenance_request,approve_users
 from .views import register, registration_success
-from .views import login_view 
+from .views import login_view,EventCreateView
 from django.contrib.auth.views import LogoutView
 from django.conf.urls import handler403
 from .views import permission_denied_view
 from django.conf import settings
 from django.conf.urls.static import static
+
 
 handler403 = permission_denied_view
 
@@ -62,6 +63,7 @@ urlpatterns = [
     path('events/', views.event_list, name='event_list'),
     path('events/', views.event_list, name='event_list'),  # For viewing events
     path('events/add/', views.add_event, name='add_event'),
+
     path('student-search/', views.student_search, name='student_search'),
     path('events/edit/<int:id>/', views.edit_event, name='edit_event'),  # For editing events
     path('events/delete/<int:id>/', views.delete_event, name='delete_event'),  # For deleting events
@@ -76,6 +78,24 @@ urlpatterns = [
     path('attendance/<int:pk>/', views.attendance_image_detail, name='attendance_image_detail'),
     path('attendance/<int:pk>/edit/', views.edit_attendance_image, name='edit_attendance_image'),
     path('attendance/search/', views.search_attendance_records, name='attendance_search'),  # For the search form
+
+    path('student/<int:pk>/', views.student_details, name='student_details'),
+
+    path('clubs/', views.list_clubs, name='list_clubs'),  # URL for listing all clubs
+    path('clubs/new/', views.create_club, name='create_club'),  # URL for creating a new club
+    path('clubs/<int:pk>/', views.view_club, name='view_club'),  # URL for viewing a specific club
+    path('clubs/<int:pk>/edit/', views.edit_club, name='edit_club'),  # URL for editing a club
+    path('clubs/<int:pk>/delete/', views.delete_club, name='delete_club'),  # URL for deleting a club
+
+    path('admissions/', views.admissions_list, name='admissions_list'),  # List of years
+    path('admissions/<int:year>/', views.admissions_by_year, name='admissions_by_year'),  # Admissions by year
+
+    path('notifications/mark-as-read/', views.mark_notifications_as_read, name='mark_notifications_as_read'),
+
+
+
+
+
     
 
 

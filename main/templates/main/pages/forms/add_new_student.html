@@ -1,72 +1,103 @@
 {% extends 'main/base.html' %}
 
 {% block content %}
+{% load static %}
+<style>
+    /* Full height background */
+    .content-wrapper {
+        background-image: url("{% static 'assets/images/girl2.webp' %}"); /* Add your image path here */
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        min-height: 100vh; /* Ensure the background covers the full viewport height */
+        display: flex;
+        justify-content: flex-end; /* Shift the form to the right */
+        align-items: center;
+        padding-right: 100px; /* Space from the right side */
+    }
+
+    /* Card Styling */
+    .card {
+        background-color: rgba(255, 255, 255, 0.85); /* Slight transparency for the card */
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Add some shadow to lift the card */
+        width: 500px; /* Wider form card */
+        padding: 30px; /* More padding inside the form */
+    }
+
+    /* Form Inputs */
+    .form-control {
+        margin-bottom: 15px; /* Spacing between inputs */
+    }
+
+    /* Button Styling */
+    .btn-primary {
+        margin-right: 10px;
+    }
+</style>
+
 <div class="content-wrapper">
-    <div class="row">
-        <div class="col-md-6 grid-margin stretch-card">
-            <div class="card">
-                <div class="card-body">
-                    <h4 class="card-title">Add New Student</h4>
-                    <p class="card-description">Student registration form</p>
-                    <form method="post" class="forms-sample">
-                        {% csrf_token %}
-                        
-                        <div class="form-group">
-                            <label for="first_name">First Name</label>
-                            <input type="text" class="form-control" id="first_name" name="first_name" placeholder="First Name">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="last_name">Last Name</label>
-                            <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Last Name">
-                        </div>
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title">Add New Student</h4>
+            <p class="card-description">Student registration form</p>
+            <form method="post" class="forms-sample">
+                {% csrf_token %}
 
-                        <div class="form-group">
-                            <label for="gender">Gender</label>
-                            <select class="form-control" id="gender" name="gender">
-                                <option value="" disabled selected>--Select Gender--</option>
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="residency_status">Residency Status</label>
-                            <select class="form-control" id="residency_status" name="residency_status">
-                                <option value="day_student">Day Student</option>
-                                <option value="boarder">Boarder</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="date_of_birth">Date of Birth</label>
-                            <input type="date" class="form-control" id="date_of_birth" name="date_of_birth" placeholder="Date of Birth">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="admission_date">Admission Date</label>
-                            <input type="date" class="form-control" id="admission_date" name="admission_date" placeholder="Admission Date">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="school_fees_status">School Fees Status</label>
-                            <select class="form-control" id="school_fees_status" name="school_fees_status">
-                                <option value="" disabled selected>--Select Status--</option>
-                                <option value="paid">Paid</option>
-                                <option value="unpaid">Unpaid</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="class_name">Class</label>
-                            <input type="text" class="form-control" id="class_name" value="{{ class_name }}" readonly>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary me-2">Submit</button>
-                        <a href="{% url 'view_students' class_id=school_class.id %}" class="btn btn-light">Cancel</a>
-                    </form>
+                <div class="form-group">
+                    <label for="first_name">First Name</label>
+                    <input type="text" class="form-control" id="first_name" name="first_name" placeholder="First Name">
                 </div>
-            </div>
+                
+                <div class="form-group">
+                    <label for="last_name">Last Name</label>
+                    <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Last Name">
+                </div>
+
+                <div class="form-group">
+                    <label for="gender">Gender</label>
+                    <select class="form-control" id="gender" name="gender">
+                        <option value="" disabled selected>--Select Gender--</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="residency_status">Residency Status</label>
+                    <select class="form-control" id="residency_status" name="residency_status">
+                        <option value="day_student">Day Student</option>
+                        <option value="boarder">Boarder</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="date_of_birth">Date of Birth</label>
+                    <input type="date" class="form-control" id="date_of_birth" name="date_of_birth" placeholder="Date of Birth">
+                </div>
+
+                <div class="form-group">
+                    <label for="admission_date">Admission Date</label>
+                    <input type="date" class="form-control" id="admission_date" name="admission_date" placeholder="Admission Date">
+                </div>
+
+                <div class="form-group">
+                    <label for="school_fees_status">School Fees Status</label>
+                    <select class="form-control" id="school_fees_status" name="school_fees_status">
+                        <option value="" disabled selected>--Select Status--</option>
+                        <option value="paid">Paid</option>
+                        <option value="unpaid">Unpaid</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="class_name">Class</label>
+                    <input type="text" class="form-control" id="class_name" value="{{ class_name }}" readonly>
+                </div>
+
+                <button type="submit" class="btn btn-primary me-2">Submit</button>
+                <a href="{% url 'view_students' class_id=school_class.id %}" class="btn btn-light">Cancel</a>
+            </form>
         </div>
     </div>
 </div>

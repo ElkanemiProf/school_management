@@ -1,0 +1,23 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<h3>Select the correct student for each duplicate name:</h3>
+
+<form method="post">
+    {% csrf_token %}
+    
+    {% for full_name, students in multiple_students.items %}
+        <h4>{{ full_name }}:</h4>
+        <ul>
+        {% for student in students %}
+            <li>
+                <input type="radio" name="selected_student_{{ full_name }}" value="{{ student.id }}">
+                {{ student.first_name }} {{ student.last_name }} (Class: {{ student.school_class }})
+            </li>
+        {% endfor %}
+        </ul>
+    {% endfor %}
+    
+    <button type="submit">Submit</button>
+</form>
+{% endblock %}

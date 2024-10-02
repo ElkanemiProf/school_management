@@ -1,0 +1,27 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header">
+            <h3>{{ student.first_name }} {{ student.last_name }}'s Details</h3>
+        </div>
+        <div class="card-body">
+            <p><strong>First Name:</strong> {{ student.first_name }}</p>
+            <p><strong>Last Name:</strong> {{ student.last_name }}</p>
+            <p><strong>Gender:</strong> {{ student.get_gender_display }}</p>
+            <p><strong>Date of Birth:</strong> {{ student.date_of_birth }}</p>
+            <p><strong>Admission Date:</strong> {{ student.admission_date }}</p>
+            <p><strong>School Class:</strong> {{ student.school_class }}</p>
+            <p><strong>Residency Status:</strong> {{ student.get_residency_status_display }}</p>
+            <p><strong>School Fees Status:</strong> {{ student.get_fee_status }}</p>
+        </div>
+        <div class="card-footer">
+            <a href="{% url 'view_students' class_id=student.school_class.id %}" class="btn btn-primary">Back to Class List</a>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

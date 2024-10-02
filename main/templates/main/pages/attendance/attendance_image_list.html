@@ -1,9 +1,50 @@
 {% extends 'main/base.html' %}
-
+{%load static%}
 {% block title %}Attendance Details{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    <div class="card shadow-sm">
+<style>
+    body {
+        background-color: #d0e6f1; /* Light blue background color */
+    }
+
+    .attendance-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 20px;
+    }
+
+    /* Background image on the left */
+    .bg-image {
+        background-image: url("{% static 'assets/images/attendance.webp' %}"); /* Add your image path */
+        background-size: cover;
+        background-position: center;
+        width: 40%; /* Adjust width of the image container */
+        height: 100vh; /* Full viewport height */
+        border-radius: 8px;
+    }
+
+    /* Form shifted to the right */
+    .form-container {
+        width: 55%; /* Adjust width of the form container */
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-label {
+        font-weight: bold;
+    }
+</style>
+
+<div class="attendance-container">
+    <!-- Background image on the left -->
+    <div class="bg-image"></div>
+
+    <!-- Form on the right -->
+    <div class="form-container">
         <div class="card-body">
             <h3 class="card-title mb-4">Search Attendance Records</h3>
 

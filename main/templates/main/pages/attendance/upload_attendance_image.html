@@ -1,70 +1,139 @@
 {% extends 'main/base.html' %}
-
+{%load static%}
 {% block title %}Upload New Attendance{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <h3 class="card-title mb-4">Upload New Attendance</h3>
+<style>
+    body {
+        background-color: #f0f0f0; /* Light gray background */
+        height: 100vh;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 
-            <!-- Form for uploading attendance -->
-            <form method="post">
-                {% csrf_token %}
-                
-                <div class="row">
-                    <!-- Teacher Dropdown -->
-                    <div class="col-md-6 mb-3">
-                        <label for="teacher" class="form-label">Teacher</label>
-                        <select id="teacher" name="teacher" class="form-control">
-                            <option value="" disabled selected>Select a teacher</option>
-                            {% for teacher in teachers %}
-                                <option value="{{ teacher.id }}">{{ teacher.user.username }}</option>
-                            {% endfor %}
-                        </select>
+    .container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%; /* Full width of the screen */
+        height: 80vh;
+    }
+
+    /* Left side image styling */
+    .image-container {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .image-container img {
+        max-width: 90%; /* Adjust size of the image */
+        height: auto;
+        border-radius: 10px;
+    }
+
+    /* Right side form styling */
+    .form-container {
+        flex: 1;
+        padding: 20px;
+    }
+
+    .card {
+        background-color: #ffffff; /* White background for the card */
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-label {
+        font-weight: bold;
+    }
+
+    .btn-primary {
+        background-color: #3498db;
+        border-color: #3498db;
+    }
+
+    .btn-primary:hover {
+        background-color: #2980b9;
+        border-color: #2980b9;
+    }
+</style>
+
+<div class="container">
+    <!-- Left side for image -->
+    <div class="image-container">
+        <img src="{% static 'assets/images/teacher_image.webp' %}" alt="Teacher Image"> <!-- Replace with your image path -->
+    </div>
+
+    <!-- Right side for the form -->
+    <div class="form-container">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h3 class="card-title mb-4">Upload New Attendance</h3>
+
+                <!-- Form for uploading attendance -->
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <!-- Teacher Dropdown -->
+                        <div class="col-md-6 mb-3">
+                            <label for="teacher" class="form-label">Teacher</label>
+                            <select id="teacher" name="teacher" class="form-control">
+                                <option value="" disabled selected>Select a teacher</option>
+                                {% for teacher in teachers %}
+                                    <option value="{{ teacher.id }}">{{ teacher.user.username }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Class Name Input -->
+                        <div class="col-md-6 mb-3">
+                            <label for="class_name" class="form-label">Class Name</label>
+                            <input type="text" class="form-control" id="class_name" name="class_name" placeholder="Enter Class Name">
+                        </div>
+
+                        <!-- Subject Input -->
+                        <div class="col-md-6 mb-3">
+                            <label for="subject" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="subject" name="subject" placeholder="Enter Subject">
+                        </div>
+
+                        <!-- Attendance Date Input -->
+                        <div class="col-md-6 mb-3">
+                            <label for="attendance_date" class="form-label">Attendance Date</label>
+                            <input type="date" class="form-control" id="attendance_date" name="attendance_date">
+                        </div>
+
+                        <!-- Uploaded By Input -->
+                        <div class="col-md-6 mb-3">
+                            <label for="uploaded_by" class="form-label">Uploaded By</label>
+                            <input type="text" class="form-control" id="uploaded_by" name="uploaded_by" placeholder="Enter your name">
+                        </div>
+
+                        <!-- Remarks Textarea -->
+                        <div class="col-md-12 mb-3">
+                            <label for="remarks" class="form-label">Remarks</label>
+                            <select class="form-control" id="remarks" name="remarks">
+                                <option value="" disabled selected>Select a remark</option>
+                                <option value="was on time">Was on time</option>
+                                <option value="was late to class">Was late to class</option>
+                                <option value="didn't come at all">Didn't come at all</option>
+                                <option value="left before time">Left before time</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
                     </div>
 
-                    <!-- Class Name Input -->
-                    <div class="col-md-6 mb-3">
-                        <label for="class_name" class="form-label">Class Name</label>
-                        <input type="text" class="form-control" id="class_name" name="class_name" placeholder="Enter Class Name">
-                    </div>
-
-                    <!-- Subject Input -->
-                    <div class="col-md-6 mb-3">
-                        <label for="subject" class="form-label">Subject</label>
-                        <input type="text" class="form-control" id="subject" name="subject" placeholder="Enter Subject">
-                    </div>
-
-                    <!-- Attendance Date Input -->
-                    <div class="col-md-6 mb-3">
-                        <label for="attendance_date" class="form-label">Attendance Date</label>
-                        <input type="date" class="form-control" id="attendance_date" name="attendance_date">
-                    </div>
-
-                    <!-- Uploaded By Input -->
-                    <div class="col-md-6 mb-3">
-                        <label for="uploaded_by" class="form-label">Uploaded By</label>
-                        <input type="text" class="form-control" id="uploaded_by" name="uploaded_by" placeholder="Enter your name">
-                    </div>
-
-                    <!-- Remarks Textarea -->
-                    <div class="col-md-12 mb-3">
-                        <label for="remarks" class="form-label">Remarks</label>
-                        <select class="form-control" id="remarks" name="remarks">
-                            <option value="" disabled selected>Select a remark</option>
-                            <option value="was on time">Was on time</option>
-                            <option value="was late to class">Was late to class</option>
-                            <option value="didn't come at all">Didn't come at all</option>
-                            <option value="left before time">Left before time</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Submit Button -->
-                <button type="submit" class="btn btn-primary">Upload Attendance</button>
-            </form>
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary">Upload Attendance</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>

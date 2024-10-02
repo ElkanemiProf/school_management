@@ -1,0 +1,84 @@
+/* General Background */
+body {
+    background-color: #ecf0f1; /* Light Gray */
+}
+
+/* Dashboard overview boxes */
+.dashboard-box {
+    border-radius: 8px;
+    padding: 15px;
+    color: white;
+    margin-bottom: 20px;
+}
+
+.box-blue {
+    background-color: #3498db; /* Soft Blue */
+}
+
+.box-green {
+    background-color: #2ecc71; /* Soft Green */
+}
+
+.box-yellow {
+    background-color: #f1c40f; /* Soft Yellow */
+}
+
+.dashboard-box h3 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.dashboard-box p {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+/* Section titles */
+h2 {
+    color: #2c3e50; /* Dark Gray */
+}
+
+/* Table Styling */
+.table th {
+    background-color: #2c3e50; /* Dark Gray */
+    color: white;
+}
+
+.table td {
+    background-color: white;
+    border: 1px solid #dfe6e9; /* Light Gray */
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f1f1f1; /* Slight hover effect */
+}
+
+/* Button Styling */
+button, .btn-primary {
+    background-color: #3498db; /* Primary Color */
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+button:hover, .btn-primary:hover {
+    background-color: #2980b9; /* Slightly darker blue */
+}
+
+/* Notes Section */
+.note-section {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.note-count {
+    color: #2ecc71; /* Green for counts */
+    font-weight: bold;
+}
+
+.note-text {
+    color: #2c3e50; /* Dark gray for readability */
+}

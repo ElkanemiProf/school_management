@@ -8,7 +8,7 @@ import pandas as pd
 from .models import (
     Student, Attendance, SchoolClass, UserProfile, Parent, Teacher,
     MaintenanceRequest, FeePayment, IncidentReport, Subject, Grade,
-    Event, AuditTrail, Budget, Staff
+    Event, AuditTrail, Budget, Staff,Club
 )
 from django.contrib.auth.models import User
 from django.db.models import Avg, Max, Min
@@ -315,9 +315,11 @@ class UserProfileAdmin(admin.ModelAdmin):
 
 
 
+
+
 # Register remaining models
 admin.site.register(Attendance)
-
+admin.site.register(Club)
 admin.site.register(Parent)
 admin.site.register(Event)
 admin.site.register(AuditTrail)
