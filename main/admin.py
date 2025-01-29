@@ -5,13 +5,56 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils.html import format_html
 import pandas as pd
+from django.contrib.auth.models import User
+from django.db.models import Avg, Max, Min
+
 from .models import (
     Student, Attendance, SchoolClass, UserProfile, Parent, Teacher,
     MaintenanceRequest, FeePayment, IncidentReport, Subject, Grade,
-    Event, AuditTrail, Budget, Staff,Club
+    Event, AuditTrail, Budget, Staff, Club
 )
-from django.contrib.auth.models import User
-from django.db.models import Avg, Max, Min
+
+class TeacherAdminForm(forms.ModelForm):
+    first_name = forms.CharField(label='First Name')
+    last_name = forms.CharField(label='Last Name')
+    username = forms.CharField(label='Username')
+
+    class Meta:
+        model = Teacher
+        fields = '__all__'
+        exclude = ['user']  # Exclude the user field from the form
+
+    def save(self, commit=True):
+        # Create the new User
+        user = User.objects.create_user(
+            username=self.cleaned_data['username'],
+            first_name=self.cleaned_data['first_name'],
+            last_name=self.cleaned_data['last_name'],
+        )
+        # Link the newly created user to the teacher
+        self.instance.user = user
+        return super().save(commit=commit)
+
+# Custom Admin for Teacher model
+@admin.register(Teacher)
+class TeacherAdmin(admin.ModelAdmin):
+    form = TeacherAdminForm
+    list_display = ['get_username', 'get_subjects_taught', 'get_classes_taught', 'phone_number', 'ippis_number']
+    search_fields = ['user__username', 'phone_number', 'ippis_number']
+    filter_horizontal = ['subject_taught', 'classes_taught']
+
+    def get_username(self, obj):
+        return obj.user.username
+    get_username.short_description = 'Username'
+
+    def get_subjects_taught(self, obj):
+        return ", ".join([subject.name for subject in obj.subject_taught.all()])
+    get_subjects_taught.short_description = 'Subjects Taught'
+
+    def get_classes_taught(self, obj):
+        return ", ".join([str(school_class) for school_class in obj.classes_taught.all()])
+    get_classes_taught.short_description = 'Classes Taught'
+
 
 # Custom Form for Staff Admin
 class StaffForm(forms.ModelForm):
@@ -66,7 +109,6 @@ class StudentAdmin(admin.ModelAdmin):
     list_display = ('first_name', 'last_name', 'school_class', 'date_of_birth', 'admission_date', 'get_fee_status')
     search_fields = ('first_name', 'last_name', 'date_of_birth', 'admission_date')
     list_filter = ('school_class', 'date_of_birth', 'admission_date', 'gender', 'school_fees_status')
-    change_list_template = "admin/student_grade_list.html"
 
     def get_fee_status(self, obj):
         return obj.get_fee_status()
@@ -121,57 +163,19 @@ class SubjectAdmin(admin.ModelAdmin):
         return format_html('<a href="{}">View Performance</a>', url)
     view_performance.short_description = 'Performance'
 
-    def ordinal_suffix(self, n):
-        if 11 <= (n % 100) <= 13:
-            return f"{n}th"
-        else:
-            suffixes = {1: 'st', 2: 'nd', 3: 'rd'}
-            return f"{n}{suffixes.get(n % 10, 'th')}"
-
     def subject_performance_view(self, request, subject_id):
         subject = Subject.objects.get(id=subject_id)
         grades = Grade.objects.filter(subject=subject).order_by('-score')
         avg_score = grades.aggregate(Avg('score'))['score__avg']
         max_score = grades.aggregate(Max('score'))['score__max']
         min_score = grades.aggregate(Min('score'))['score__min']
-        rankings = []
-        for idx, grade in enumerate(grades, start=1):
-            rank_with_suffix = self.ordinal_suffix(idx)
-            rankings.append({
-                'student': grade.student,
-                'score': grade.score,
-                'rank': rank_with_suffix,
-            })
-        best_grade = grades.first()
-        best_student = best_grade.student if best_grade else None
-        recommendations = []
-        if best_student:
-            student_grades = Grade.objects.filter(student=best_student)
-            weakest_subject = student_grades.order_by('score').first()
-            class_students = Student.objects.filter(school_class=best_student.school_class)
-            overall_grades = Grade.objects.filter(student__in=class_students).values('student').annotate(total_avg=Avg('score')).order_by('-total_avg')
-            rank = next((index + 1 for index, g in enumerate(overall_grades) if g['student'] == best_student.id), None)
-            if rank:
-                rank_with_suffix = self.ordinal_suffix(rank)
-                recommendations.append(f"{best_student.first_name} is currently the {rank_with_suffix} best overall student in {best_student.school_class} and can become the best student if they improve in {weakest_subject.subject.name}.")
-            if avg_score and avg_score < 50:
-                recommendations.append("The average score is below 50. Consider revising teaching methods or offering additional support to students.")
-            if max_score and max_score > 95:
-                recommendations.append(f"Great job! {best_student.first_name} scored {max_score}. Keep encouraging high achievers.")
-            if min_score and min_score < 40:
-                recommendations.append("Some students are struggling significantly. Provide extra help to those scoring below 40.")
-            if weakest_subject and weakest_subject.score < 60:
-                recommendations.append(f"Encourage {best_student.first_name} to focus more on {weakest_subject.subject.name}, where they scored {weakest_subject.score}.")
-            if avg_score and 60 <= avg_score < 70:
-                recommendations.append("The average performance is decent, but there is room for improvement. Motivate students to aim higher.")
+
         context = {
             'subject': subject,
             'avg_score': avg_score,
             'max_score': max_score,
             'min_score': min_score,
-            'best_student': best_student,
-            'rankings': rankings,
-            'recommendations': recommendations if recommendations else ["No recommendations at this time."],
+            'rankings': grades,
         }
         return render(request, 'admin/subject_performance.html', context)
 
@@ -188,77 +192,6 @@ class SchoolClassAdmin(admin.ModelAdmin):
         return format_html('<a href="{}">View Students</a>', f'{obj.id}/students/')
     view_students.short_description = 'Students'
 
-    def changelist_view(self, request, extra_context=None):
-        # Retrieve all school classes
-        school_classes = SchoolClass.objects.all()
-
-        # Count the total number of students
-        total_students = Student.objects.count()
-        total_male_students = Student.objects.filter(gender='male').count()
-        total_female_students = Student.objects.filter(gender='female').count()
-
-        total_boarders = Student.objects.filter(residency_status='boarder').count() or 0
-        total_day_students = Student.objects.filter(residency_status='day_student').count() or 0
-
-        # Prepare context data
-        extra_context = extra_context or {}
-        extra_context['total_students'] = total_students
-        extra_context['total_male_students'] = total_male_students
-        extra_context['total_female_students'] = total_female_students
-        extra_context['total_boarders'] = total_boarders
-        extra_context['total_day_students'] = total_day_students
-        extra_context['school_classes'] = school_classes  # Pass the list of school classes to the template
-
-        # Render the hoverable table template with the school class data
-        return render(request, 'main/pages/hoverable_school_classes.html', extra_context)
-
-    def get_urls(self):
-        urls = super().get_urls()
-        custom_urls = [
-            path('<int:class_id>/students/', self.admin_site.admin_view(self.students_list), name='schoolclass_students_list'),
-            path('<int:class_id>/students/export/', self.admin_site.admin_view(self.export_class_to_excel), name='schoolclass_students_export'),
-        ]
-        return custom_urls + urls
-
-    def students_list(self, request, class_id):
-        school_class = SchoolClass.objects.get(id=class_id)
-        students = Student.objects.filter(school_class=school_class)
-
-        male_students = students.filter(gender='male').count()
-        female_students = students.filter(gender='female').count()
-
-        add_student_url = reverse('admin:main_student_add') + f"?school_class={class_id}"
-        export_excel_url = reverse('admin:schoolclass_students_export', args=[class_id])
-
-        context = {
-            'school_class': school_class,
-            'students': students,
-            'add_student_url': add_student_url,
-            'export_excel_url': export_excel_url,
-            'male_students': male_students,
-            'female_students': female_students,
-        }
-
-        return render(request, 'main/pages/hoverable_school_classes.html', context)
-
-    def export_class_to_excel(self, request, class_id):
-        school_class = SchoolClass.objects.get(id=class_id)
-        students = Student.objects.filter(school_class=school_class)
-
-        data = []
-        for student in students:
-            data.append([student.first_name, student.last_name, student.date_of_birth])
-
-        df = pd.DataFrame(data, columns=['First Name', 'Last Name', 'Date of Birth'])
-
-        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        response['Content-Disposition'] = f'attachment; filename=class_{school_class.level}_{school_class.section}_students.xlsx'
-
-        with pd.ExcelWriter(response, engine='openpyxl') as writer:
-            df.to_excel(writer, index=False, sheet_name='Students')
-
-        return response
-
 
 @admin.register(MaintenanceRequest)
 class MaintenanceRequestAdmin(admin.ModelAdmin):
@@ -274,34 +207,12 @@ class IncidentReportAdmin(admin.ModelAdmin):
     search_fields = ['description', 'location']
 
 
-@admin.register(Teacher)
-class TeacherAdmin(admin.ModelAdmin):
-    list_display = ['get_username', 'get_subjects_taught', 'get_classes_taught', 'phone_number', 'ippis_number']
-    search_fields = ['user__username', 'phone_number', 'ippis_number']
-    filter_horizontal = ['subject_taught', 'classes_taught']
-
-    def get_username(self, obj):
-        return obj.user.username
-    get_username.short_description = 'Username'
-
-    def get_subjects_taught(self, obj):
-        return ", ".join([subject.name for subject in obj.subject_taught.all()])
-    get_subjects_taught.short_description = 'Subjects Taught'
-
-    def get_classes_taught(self, obj):
-        return ", ".join([str(school_class) for school_class in obj.classes_taught.all()])
-    get_classes_taught.short_description = 'Classes Taught'
-
-
 @admin.register(Budget)
 class BudgetAdmin(admin.ModelAdmin):
     list_display = ('category', 'allocated_amount', 'spent_amount', 'remaining_amount')
-    readonly_fields = ('remaining_amount',)  # Make remaining_amount readonly as it's calculated
+    readonly_fields = ('remaining_amount',)
 
-from django.contrib import admin
-from .models import UserProfile
 
-# Register UserProfile model in admin
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'role', 'approved')  # Show the user, role, and approval status
@@ -312,9 +223,6 @@ class UserProfileAdmin(admin.ModelAdmin):
     def approve_selected_users(self, request, queryset):
         queryset.update(approved=True)
     approve_selected_users.short_description = "Approve selected users"
-
-
-
 
 
 # Register remaining models

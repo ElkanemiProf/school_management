@@ -112,7 +112,6 @@
 
 <div class="content-wrapper">
     <div class="class-container">
-        <!-- Stylish table section -->
         <div class="table-section">
             <h4 class="card-title">Hoverable School Classes</h4>
             <div class="table-responsive">
@@ -124,6 +123,7 @@
                             <th>Number of Students</th>
                             <th>Vacant Spaces</th>
                             <th>Students</th>
+                            <th>Timetable</th> <!-- New column for timetable generation -->
                         </tr>
                     </thead>
                     <tbody>
@@ -134,6 +134,10 @@
                             <td>{{ class.student_count }}</td>
                             <td>{{ class.vacant_spaces }}</td>
                             <td><a class="badge badge-success" href="{{ class.view_students_url }}">View Students</a></td>
+                            <td>
+                                <!-- Button to view timetable -->
+                                <a href="{{ class.view_timetable_url }}" class="btn btn-primary">View Timetable</a>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -141,7 +145,6 @@
             </div>
         </div>
 
-        <!-- Stylish image section on the right -->
         <div class="image-section">
             <img src="{% static 'assets/images/class1.webp' %}" alt="Class 1">
             <img src="{% static 'assets/images/class2.webp' %}" alt="Class 2">
@@ -149,3 +152,4 @@
     </div>
 </div>
 {% endblock %}
+

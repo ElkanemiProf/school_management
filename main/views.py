@@ -12,9 +12,9 @@ from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
 import csv
 # Import the Subject model at the top of the views.py file
-from .models import Subject,IncidentReport, Club  
+from .models import Subject,IncidentReport, Club, TimeSlot, Timetable 
 from django.utils import timezone
-
+import random
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from main.models import UserProfile,Notification
@@ -23,7 +23,7 @@ from datetime import datetime
 from django.shortcuts import render, redirect
 from .forms import AttendanceImageForm,NoteFormSet
 from .models import AttendanceImage
-from .models import Event, Note,Admissions
+from .models import Event, Note,Admissions,Timetable
 from .forms import EventForm
 from django.utils import timezone
 from datetime import timedelta
@@ -514,6 +514,7 @@ def registration_success(request):
 
 @login_required
 
+
 def hoverable_school_classes_view(request):
     # Fetch all the school classes
     school_classes = SchoolClass.objects.all()
@@ -525,12 +526,15 @@ def hoverable_school_classes_view(request):
     for school_class in school_classes:
         student_count = school_class.students.count()  # Assuming you have a reverse relation `students`
         vacant_spaces = max_students - student_count  # Calculate vacant spaces
+
         class_data.append({
+            'id': school_class.id,  # Ensure ID is passed
             'level': school_class.level,
             'section': school_class.section,
             'student_count': student_count,
-            'vacant_spaces': vacant_spaces,  # Add vacant spaces to class data
-            'view_students_url': reverse('view_students', args=[school_class.id])
+            'vacant_spaces': vacant_spaces,
+            'view_students_url': reverse('view_students', args=[school_class.id]),
+            'view_timetable_url': reverse('view_timetable', args=[school_class.id])  # URL for viewing the timetable
         })
 
     context = {
@@ -543,6 +547,7 @@ def hoverable_school_classes_view(request):
     }
 
     return render(request, 'main/pages/tables/basic-table.html', context)
+
 
 @login_required
 def export_class_list(request, class_id):
@@ -578,10 +583,21 @@ def add_subject_view(request):
 
     return render(request, 'main/pages/forms/add_subject.html', {'form': form})
 
+def select_level_view(request):
+    return render(request, 'main/pages/tables/filter_subjects.html')
+
+
 @login_required
 def subject_list_view(request):
-    subjects = Subject.objects.all()
-    return render(request, 'main/pages/tables/subject_list.html', {'subjects': subjects})
+    level = request.GET.get('level')  # Get the selected level from the dropdown (Junior or Senior)
+    
+    if level:
+        subjects = Subject.objects.filter(level=level)
+    else:
+        subjects = Subject.objects.all()  # Default to all subjects if no filter is applied
+    
+    return render(request, 'main/pages/tables/subject_list.html', {'subjects': subjects, 'level': level})
+
 
 @login_required
 def modify_subject_view(request, subject_id):
@@ -980,6 +996,24 @@ def upload_attendance_image(request):
     # Pass teachers to the template
     return render(request, 'main/pages/attendance/upload_attendance_image.html', {'teachers': teachers})
 
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET
+
+@require_GET
+def get_teacher_details(request):
+    teacher_id = request.GET.get('teacher_id')
+    try:
+        teacher = Teacher.objects.prefetch_related('subject_taught', 'classes_taught').get(id=teacher_id)
+        
+        # Get subjects and classes
+        subjects = [{'name': subject.name, 'level': subject.level} for subject in teacher.subject_taught.all()]
+        classes = [{'level': school_class.level, 'section': school_class.section} for school_class in teacher.classes_taught.all()]
+        
+        return JsonResponse({'subjects': subjects, 'classes': classes})
+    except Teacher.DoesNotExist:
+        return JsonResponse({'error': 'Teacher not found'}, status=404)
+
+
 
 def attendance_image_list(request):
     # Retrieve all attendance images from the database
@@ -1212,3 +1246,217 @@ def admissions_by_year(request, year):
 def mark_notifications_as_read(request):
     Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
     return redirect('dashboard')  # Redirect to the dashboard after marking as read
+
+
+
+from django.shortcuts import render, get_object_or_404
+from main.models import SchoolClass, Timetable, TimeSlot
+
+def view_timetable(request, class_id):
+    school_class = get_object_or_404(SchoolClass, id=class_id)
+    
+    # Get all the time slots ordered by start time
+    time_slots = TimeSlot.objects.all().order_by('start_time')
+
+    # Filter the timetable entries for this class
+    timetable_entries = Timetable.objects.filter(school_class=school_class)
+
+    # Days of the week for the timetable
+    days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+
+    # Create a dictionary to store the timetable with days of the week and times
+    timetable = {}
+
+    for time_slot in time_slots:
+        # Create a row for each time slot
+        timetable[time_slot] = {}
+
+        for day in days_of_week:
+            # Find the timetable entry for the specific day and time slot
+            entry = timetable_entries.filter(time_slot=time_slot, time_slot__day_of_week=day).first()
+            
+            # Add assembly or break information, or the subject/teacher
+            if time_slot.is_assembly and day in ['Monday', 'Wednesday', 'Friday']:
+                timetable[time_slot][day] = 'Assembly'
+            elif time_slot.is_break:
+                timetable[time_slot][day] = 'Break'
+            elif entry:
+                timetable[time_slot][day] = f"{entry.subject.name} ({entry.teacher.user.first_name} {entry.teacher.user.last_name})"
+            else:
+                timetable[time_slot][day] = ''  # Empty if no subject
+
+    context = {
+        'school_class': school_class,
+        'timetable': timetable,
+        'days_of_week': days_of_week,
+    }
+
+    
+    return render(request, 'main/pages/timetables/view_timetable.html', context)
+
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import SchoolClass, Timetable
+import random
+
+
+import random
+
+import random
+
+def generate_new_timetable(school_class):
+    """
+    Generates a new timetable based on the school class level (JS or SS).
+    """
+    # Define all core subjects for Junior Secondary (JS)
+    js_core_subjects = [
+        'Mathematics', 'English Language', 'A Nigerian Language', 
+        'Basic Science', 'Social Studies', 'Fine Arts/Creative Art', 
+        'Agricultural Science', 'Civic Education', 'Christian Religion Studies', 
+        'Physical and Health Education', 'Business Studies', 'French', 
+        'Computer Studies', 'Home Economics', 'Music', 'Basic Technology'
+    ]
+
+    # Define core and elective subjects for Senior Secondary (SS)
+    ss_core_subjects = [
+        'English Language', 'Mathematics', 'Biology', 'Physics', 'Chemistry',
+        'Civic Education', 'Economics', 'Geography', 'Further Mathematics'
+    ]
+
+    ss_elective_subjects = [
+        'Literature in English', 'Government', 'Commerce', 'Financial Accounting',
+        'Technical Drawing', 'Food and Nutrition', 'Christian Religious Studies', 
+        'Islamic Religious Studies', 'Home Management', 'Agricultural Science'
+    ]
+
+    # Determine subjects based on the class level (JS or SS)
+    if school_class.level.startswith('JS'):
+        core_subjects = js_core_subjects
+        elective_subjects = []  # No electives for JS
+    else:
+        core_subjects = ss_core_subjects
+        elective_subjects = ss_elective_subjects
+
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+    periods_per_day = 9
+    timetable = {}
+
+    for day in days:
+        day_schedule = []
+        available_core_subjects = core_subjects.copy()
+        available_elective_subjects = elective_subjects.copy()
+
+        # Shuffle subjects to randomize the order each day
+        random.shuffle(available_core_subjects)
+        random.shuffle(available_elective_subjects)
+
+        for period in range(periods_per_day):
+            if period == 4:  # Period 5 should be a free period
+                day_schedule.append("Break Period")
+            else:
+                # For JS classes, use only core subjects
+                if school_class.level.startswith('JS'):
+                    if available_core_subjects:
+                        subject = available_core_subjects.pop()
+                    else:
+                        subject = "Break Period"
+                else:  # For SS classes, include both core and elective subjects
+                    if available_core_subjects:
+                        subject = available_core_subjects.pop()
+                    elif available_elective_subjects:
+                        subject = f"{random.choice(available_elective_subjects)} / Optional"
+                        available_elective_subjects.remove(subject.split(" /")[0])
+                    else:
+                        subject = "Break Period"
+                
+                day_schedule.append(subject)
+        
+        timetable[day] = day_schedule
+        print(f"Generated schedule for {day}: {day_schedule}")  # Debugging statement
+
+    return timetable
+
+
+
+def generate_timetable_view(request, class_id):
+    """
+    View to generate or load a timetable for a specific class.
+    """
+    school_class = get_object_or_404(SchoolClass, id=class_id)
+    
+    # Check if a saved timetable already exists for this class
+    existing_timetable = Timetable.objects.filter(school_class=school_class).order_by('day')
+
+    if existing_timetable.exists():
+        timetable = load_existing_timetable(existing_timetable)
+        is_saved = True
+    else:
+        timetable = generate_new_timetable(school_class)
+        is_saved = False
+
+    # Handle saving the timetable
+    if request.method == 'POST':
+        save_timetable(timetable, school_class)
+        return redirect('generate_timetable', class_id=class_id)
+
+    context = {
+        'school_class': school_class,
+        'timetable': timetable,
+        'is_saved': is_saved,
+    }
+    return render(request, 'main/pages/tables/timetable.html', context)
+
+def save_timetable(timetable, school_class):
+    """
+    Saves or updates the timetable in the database.
+    """
+    for day, schedule in timetable.items():
+        try:
+            # Update or create a single entry for each day
+            timetable_entry, created = Timetable.objects.update_or_create(
+                school_class=school_class,
+                day=day,
+                defaults={
+                    'period_1': schedule[0],
+                    'period_2': schedule[1],
+                    'period_3': schedule[2],
+                    'period_4': schedule[3],
+                    'period_5': schedule[4],
+                    'period_6': schedule[5],
+                    'period_7': schedule[6],
+                    'period_8': schedule[7],
+                    'period_9': schedule[8]
+                }
+            )
+            print(f"{'Created' if created else 'Updated'} timetable for {school_class.level} {school_class.section} on {day}")
+        except Exception as e:
+            print(f"Error saving timetable for {day}: {e}")
+
+
+def load_existing_timetable(existing_timetable):
+    """
+    Loads a saved timetable from the database, sorted by the day of the week.
+    """
+    # Define the correct order of the days
+    days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+    
+    timetable = {}
+    for entry in existing_timetable.order_by('day'):
+        day_schedule = [
+            entry.period_1, entry.period_2, entry.period_3, entry.period_4,
+            entry.period_5, entry.period_6, entry.period_7, entry.period_8, entry.period_9
+        ]
+        timetable[entry.day] = day_schedule
+    
+    # Sort the timetable dictionary by the custom order of days
+    timetable = {day: timetable[day] for day in days_order if day in timetable}
+    
+    return timetable
+
+
+
+
+@login_required
+def generate_timetable_for_class(request, class_id):
+    school_class = get_object_or_404(SchoolClass, id=class_id)
+    generate_class_timetable(school_class)
+    return redirect('view_timetable', class_id=class_id)

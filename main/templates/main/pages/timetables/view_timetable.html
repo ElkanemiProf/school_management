@@ -1,0 +1,50 @@
+{% extends 'main/base.html' %}
+{% block title %}View Timetable{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="class-container">
+        <div class="table-section">
+            <h4 class="card-title">Timetable for {{ school_class.level }} {{ school_class.section }}</h4>
+
+            {% if timetable %}
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            {% for day in days_of_week %}
+                            <th>{{ day }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for time_slot, schedule in timetable.items %}
+                        <tr>
+                            <!-- Display the time slot once per row -->
+                            <td>{{ time_slot.start_time }} - {{ time_slot.end_time }}</td>
+
+                            <!-- Loop through the schedule dictionary to display subjects or activities for each day -->
+                            {% for day in days_of_week %}
+                            <td>
+                                {% if schedule.get(day) %}
+                                    <strong>{{ schedule.get(day) }}</strong>
+                                {% else %}
+                                    &nbsp; <!-- Empty cell if no subject or activity -->
+                                {% endif %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p>No timetable available. Click the button below to generate one.</p>
+            <a href="{% url 'generate_timetable' school_class.id %}" class="btn btn-primary">Generate Timetable</a>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -4,50 +4,40 @@
 
 {% block content %}
 <style>
-    body {
-        background-color: #E0E0E0; /* Pale grey background */
-    }
-
-    .subject-container {
-        display: flex;
-        align-items: stretch; /* Ensure both sides stretch fully */
-        justify-content: space-between;
-        height: 100vh; /* Full height of the viewport */
-    }
-
-    .bg-image {
-        background-image: url("{% static 'assets/images/red.jpg' %}"); /* Add your image path */
-        background-size: cover;
-        background-position: center;
-        height: 100%; /* Ensure it covers the full container height */
-        width: 40%; /* Adjust the width of the image container */
-    }
-
     .subject-table {
-        width: 55%; /* The table occupies 55% of the width */
-        margin-left: auto;
+        width: 80%;
+        margin: 20px auto;
         padding: 20px;
         background-color: white;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         border-radius: 8px;
-        overflow-y: auto; /* Allow scrolling if content overflows */
     }
 </style>
 
-<div class="subject-container">
-    <!-- Background image on the left -->
-    <div class="bg-image"></div>
+<div class="subject-table">
+    <h2 class="mb-4">Subject Management</h2>
 
-    <!-- Table with subject details shifted to the right -->
-    <div class="subject-table">
-        <h2 class="mb-4">Subject Management</h2>
+    <!-- Add New Subject Button -->
+    <div class="mb-3">
+        <a href="{% url 'add_subject' %}" class="btn btn-success">Add New Subject</a>
+    </div>
 
-        <!-- Add New Subject Button -->
+    <!-- Dropdown for Junior or Senior Selection -->
+    <form method="get" action="{% url 'subject_list' %}">
         <div class="mb-3">
-            <a href="{% url 'add_subject' %}" class="btn btn-success">Add New Subject</a>
+            <label for="level" class="form-label">Select Level</label>
+            <select id="level" name="level" class="form-select" required>
+                <option value="" disabled selected>Select a level</option>
+                <option value="Junior" {% if level == 'Junior' %}selected{% endif %}>Junior</option>
+                <option value="Senior" {% if level == 'Senior' %}selected{% endif %}>Senior</option>
+            </select>
         </div>
 
-        <!-- Modify or Delete Existing Subjects -->
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </form>
+
+    <!-- Display Filtered Subjects -->
+    <div class="mt-4">
         {% for subject in subjects %}
         <div class="mb-3 d-flex align-items-center">
             <div class="me-3">

@@ -68,8 +68,7 @@ class SubjectForm(forms.ModelForm):
     class Meta:
         model = Subject
         fields = ['name', 'level', 'code', 'description', 'teacher']
-from django import forms
-from .models import IncidentReport
+
 
 from django import forms
 from .models import IncidentReport
@@ -101,9 +100,6 @@ class UploadClassListForm(forms.Form):
     csv_file = forms.FileField(label='Select a CSV file')
 
 
-
-
-from django import forms
 from django.contrib.auth.models import User
 from main.models import UserProfile
 
@@ -166,3 +162,10 @@ class AttendanceImageForm(forms.ModelForm):
     class Meta:
         model = AttendanceImage
         fields = ['teacher', 'class_name', 'attendance_date', 'uploaded_by', 'subject', 'remarks']  # Remove 'image'
+
+from .models import Timetable
+
+class TimetableForm(forms.ModelForm):
+    class Meta:
+        model = Timetable
+        fields = '__all__'

@@ -3,6 +3,7 @@
 {% block title %}Dashboard - Overview{% endblock %}
 
 {% block content %}
+
 <div class="container-fluid mt-4">
   <h3 class="mb-4">
     Dashboard Overview
@@ -15,10 +16,6 @@
       {% endif %}
     </div>
   </h3>
-
-
-
-
 
   <!-- Dashboard Cards for Overview -->
   <div class="row dashboard-overview">
@@ -42,26 +39,24 @@
     </div>
     <div class="col-md-3 mb-4">
       <div class="card bg-success text-white text-center p-4">
-          <h6 class="card-title">2023/2024 Admissions</h6>
-          <h3>{{ current_year_admissions }}</h3>
+        <h6 class="card-title">2023/2024 Admissions</h6>
+        <h3>{{ current_year_admissions }}</h3>
       </div>
     </div>
   </div>
 
   <!-- Budget Overview and Student Distribution side by side -->
   <div class="row">
-    <!-- Budget Overview Section -->
     <div class="col-md-6">
       <div class="card p-4" style="height: 500px;">
-          <h5 class="card-title">Budget Overview</h5>
-          <canvas id="budgetChart"></canvas>
+        <h5 class="card-title">Budget Overview</h5>
+        <canvas id="budgetChart"></canvas>
       </div>
     </div>
-    <!-- Student Distribution Section -->
     <div class="col-md-6">
       <div class="card p-4" style="height: 500px;">
-          <h5 class="card-title">Student Distribution</h5>
-          <canvas id="studentDistributionChart" style="max-width: 400px; max-height: 400px;"></canvas>
+        <h5 class="card-title">Student Distribution</h5>
+        <canvas id="studentDistributionChart" style="max-width: 400px; max-height: 400px;"></canvas>
       </div>
     </div>
   </div>
@@ -76,6 +71,7 @@
     </div>
   </div>
 </div>
+
 
 <!-- Chart.js and Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
@@ -142,8 +138,9 @@
     }
   });
 </script>
+
+<!-- Student Distribution Chart -->
 <script>
-  // Ensure the chart library is properly initialized and ready
   const ctxStudent = document.getElementById('studentDistributionChart').getContext('2d');
   const studentDistributionChart = new Chart(ctxStudent, {
     type: 'doughnut',
@@ -175,16 +172,14 @@
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: {
-          position: 'top',
-        }
+        legend: { position: 'top' }
       }
     }
   });
 </script>
 
+<!-- Dashboard Time Update -->
 <script>
-  // Update Time for the Dashboard
   function updateTime() {
     const now = new Date();
     const hours = now.getHours().toString().padStart(2, '0');
@@ -197,5 +192,18 @@
   updateTime();
   setInterval(updateTime, 1000);
 </script>
+
+<!-- Gradient Animation -->
+<style>
+  .animated-gradient {
+    animation: animateBg 2s linear infinite;
+    background-image: linear-gradient(90deg, #0080ff, #388363, #fcf8d6, #0080ff, #388363);
+    background-size: 400% 100%;
+  }
+  @keyframes animateBg {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 100% 0%; }
+  }
+</style>
 
 {% endblock content %}

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-{% load static%}
+{% load static %}
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -9,21 +9,35 @@
     <!-- Bootstrap CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+
+    <!-- Animated Gradient CSS -->
+    <style>
+      .animated-gradient {
+        animation: animateBg 8s linear infinite;
+        background-image: linear-gradient(90deg, #0080ff, #388363, #fcf8d6, #0080ff, #388363);
+        background-size: 400% 100%;
+        height: 100vh; /* Ensures full-height coverage */
+        width: 100%;
+      }
+
+      @keyframes animateBg {
+        0% { background-position: 0% 0%; }
+        100% { background-position: 100% 0%; }
+      }
+    </style>
   </head>
   <body>
     <div class="container-scroller">
       <!-- Navbar -->
       
-
       <!-- Page content -->
       <div class="container-fluid page-body-wrapper">
         <!-- Sidebar -->
         {% include 'main/partials/_sidebar.html' %}
 
-        <!-- Main panel -->
-        <div class="main-panel">
+        <!-- Main panel with animated gradient -->
+        <div class="main-panel animated-gradient">
           <div class="content-wrapper">
             <!-- Flash messages -->
             {% if messages %}

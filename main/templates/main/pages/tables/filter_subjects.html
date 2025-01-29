@@ -1,0 +1,28 @@
+{% extends 'main/base.html' %}
+{% block title %}Select Level{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2 class="text-center mb-4">Select Subject Level</h2>
+
+            <!-- Dropdown for selecting Junior or Senior -->
+            <form method="get" action="{% url 'subject_list' %}">
+                <div class="mb-3">
+                    <label for="level" class="form-label">Select Level</label>
+                    <select id="level" name="level" class="form-select" required>
+                        <option value="" disabled selected>Select a level</option>
+                        <option value="Junior">Junior</option>
+                        <option value="Senior">Senior</option>
+                    </select>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-block">Next</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

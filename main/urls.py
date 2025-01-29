@@ -13,6 +13,8 @@ from django.conf.urls import handler403
 from .views import permission_denied_view
 from django.conf import settings
 from django.conf.urls.static import static
+from .views import upload_attendance_image, get_teacher_details
+from .views import hoverable_school_classes_view, view_timetable, generate_timetable_for_class
 
 
 handler403 = permission_denied_view
@@ -38,6 +40,7 @@ urlpatterns = [
     path('subjects/', subject_list_view, name='subject_list'),
     path('subjects/modify/<int:subject_id>/', modify_subject_view, name='modify_subject'),
     path('subjects/delete/<int:subject_id>/', delete_subject_view, name='delete_subject'),
+    path('select_level/', views.select_level_view, name='select_level'),
     path('teachers/', teacher_list_view, name='teacher_list'),
     path('student-distribution/', student_distribution_view, name='student_distribution'),
 
@@ -91,6 +94,16 @@ urlpatterns = [
     path('admissions/<int:year>/', views.admissions_by_year, name='admissions_by_year'),  # Admissions by year
 
     path('notifications/mark-as-read/', views.mark_notifications_as_read, name='mark_notifications_as_read'),
+
+    path('get-teacher-details/', get_teacher_details, name='get_teacher_details'),
+    path('school_classes/', hoverable_school_classes_view, name='hoverable_school_classes'),
+    path('view_timetable/<int:class_id>/', view_timetable, name='view_timetable'),
+    path('view-timetable/<int:class_id>/', views.generate_timetable_view, name='view_timetable'),
+    path('timetable/<int:class_id>/', views.generate_timetable_view, name='generate_timetable'),
+
+
+
+
 
 
 

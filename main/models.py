@@ -174,11 +174,7 @@ class FeePayment(models.Model):
 
     def __str__(self):
         return f"{self.student} - {self.amount_paid} - {self.status}"
-from django.db import models
-from django.contrib.auth.models import User
 
-from django.db import models
-from django.contrib.auth.models import User
 
 class IncidentReport(models.Model):
     INCIDENT_TYPE_CHOICES = [
@@ -311,3 +307,38 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"Notification for {self.user.username} - {self.message[:20]}"
+
+
+
+class TimeSlot(models.Model):
+    day_of_week = models.CharField(max_length=20)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    
+    # Add fields to track assembly and break times
+    is_assembly = models.BooleanField(default=False)
+    is_break = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.day_of_week}: {self.start_time} - {self.end_time}"
+
+
+
+
+
+
+class Timetable(models.Model):
+    school_class = models.ForeignKey(SchoolClass, on_delete=models.CASCADE)
+    day = models.CharField(max_length=10, default='Monday')  # Set a default value
+    period_1 = models.CharField(max_length=100, null=True, blank=True)
+    period_2 = models.CharField(max_length=100, null=True, blank=True)
+    period_3 = models.CharField(max_length=100, null=True, blank=True)
+    period_4 = models.CharField(max_length=100, null=True, blank=True)
+    period_5 = models.CharField(max_length=100, null=True, blank=True)
+    period_6 = models.CharField(max_length=100, null=True, blank=True)
+    period_7 = models.CharField(max_length=100, null=True, blank=True)
+    period_8 = models.CharField(max_length=100, null=True, blank=True)
+    period_9 = models.CharField(max_length=100, null=True, blank=True)
+
+    def __str__(self):
+        return f"Timetable for {self.school_class.level} {self.school_class.section} on {self.day}"
