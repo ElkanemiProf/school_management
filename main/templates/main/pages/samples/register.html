@@ -21,7 +21,7 @@
             margin: 0;
             padding: 0;
         }
-
+    
         /* Form container settings */
         .auth-form-light {
             background-color: rgba(255, 255, 255, 0.2); /* Transparency for the form */
@@ -32,54 +32,20 @@
             max-width: 400px; /* Maximum width */
             min-width: 320px; /* Minimum width */
             width: 100%;
-            margin-right: 50px; /* Spacing from the right, if needed */
+            margin-right: 50px; /* Spacing from the right */
+            margin-left: 30px; /* Add spacing to shift the form to the right */
         }
-
-        /* Button color matching the logo */
-        .auth-form-btn {
-            background-color: #3498db; /* Match with the logo color */
-            border: none;
-            width: 100%;
-            padding: 10px;
-            font-size: 16px;
-        }
-
-        .auth-form-btn:hover {
-            background-color: #2980b9; /* Darker shade on hover */
-        }
-
-        /* Link color */
-        .auth-link, .text-primary {
-            color: #2ecc71; /* Soft green matching logo */
-        }
-
-        .auth-link:hover, .text-primary:hover {
-            color: #27ae60; /* Darker green on hover */
-        }
-
-        /* Fix input form styles */
-        .form-control {
-            margin-bottom: 20px;
-            height: 45px;
-            font-size: 16px;
-        }
-
-        /* Center the form within the screen */
-        .content-wrapper {
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
+    
         /* Responsive adjustments */
         @media (max-width: 576px) {
             .auth-form-light {
                 padding: 20px;
                 max-width: 100%;
+                margin: 0 10px; /* Add a margin on both left and right for smaller screens */
             }
         }
     </style>
+    
 </head>
 <body>
     <div class="container-scroller">
