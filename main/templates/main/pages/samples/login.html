@@ -13,39 +13,37 @@
     <style>
         /* Set the background image */
         body {
-    background-image: url("{% static 'assets/images/logo3.jpg' %}");
-    background-color: #C0C3B3; /* Set background color to #C0C3B3 */
-    height: 100vh; /* Full viewport height */
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    margin: 0;
-    padding: 0;
-}
+            background-image: url("{% static 'assets/images/logo3.jpg' %}");
+            background-color: #C0C3B3; /* Set background color to #C0C3B3 */
+            height: 100vh; /* Full viewport height */
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
 
-  
+        .auth-form-light {
+            background-color: rgba(255, 255, 255, 0.2); /* Transparency for the form */
+            border-radius: 10px;
+            padding: 30px;
+            border: none; /* Remove any borders */
+            box-shadow: none; /* Remove shadow */
+            max-width: 400px; /* Maximum width */
+            min-width: 320px; /* Minimum width */
+            width: 100%;
+            margin-right: 50px; /* Spacing from the right */
+            margin-left: 30px; /* Add spacing to shift the form to the right */
+        }
 
-.auth-form-light {
-    background-color: rgba(255, 255, 255, 0.2); /* Transparency for the form */
-    border-radius: 10px;
-    padding: 30px;
-    border: none; /* Remove any borders */
-    box-shadow: none; /* Remove shadow */
-    max-width: 400px; /* Maximum width */
-    min-width: 320px; /* Minimum width */
-    width: 100%;
-    margin-right: 50px; /* Spacing from the right, if needed */
-}
-
-/* Remove potential container borders */
-.container-scroller,
-.container-fluid,
-.content-wrapper {
-    border: none; /* Ensure no borders are applied on container elements */
-    padding: 0;
-    margin: 0;
-}
-
+        /* Remove potential container borders */
+        .container-scroller,
+        .container-fluid,
+        .content-wrapper {
+            border: none; /* Ensure no borders are applied on container elements */
+            padding: 0;
+            margin: 0;
+        }
 
         /* Button color matching the logo */
         .auth-form-btn {
@@ -101,8 +99,6 @@
     </style>
 </head>
 <body>
-    
-
     <div class="container-scroller">
         <div class="container-fluid page-body-wrapper full-page-wrapper">
             <div class="content-wrapper d-flex align-items-center auth px-0">
