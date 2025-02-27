@@ -14,17 +14,14 @@
         <div class="col-md-8">
             <div class="list-group">
                 {% for year_data in admissions_years %}
-                    {% if year_data.year %}
-                    <a href="{% url 'admissions_by_year' year_data.year %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <!-- Wrap the list item in an anchor tag -->
+                    <a href="{% url 'admissions_by_year' year=year_data.year %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center hover-effect">
                         <strong>{{ year_data.year }}</strong>
-                        <span class="badge badge-primary badge-pill">{{ year_data.count }}</span>
+                        <div>
+                            <span class="badge badge-primary badge-pill count-badge">Total: {{ year_data.count }}</span>
+                            <span class="badge badge-success badge-pill ml-2 count-badge">Admitted: {{ year_data.admitted_count }}</span>
+                        </div>
                     </a>
-                    {% else %}
-                    <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-muted">
-                        <strong>Unknown Year</strong>
-                        <span class="badge badge-primary badge-pill">{{ year_data.count }}</span>
-                    </div>
-                    {% endif %}
                 {% endfor %}
             </div>
         </div>
@@ -39,4 +36,26 @@
     </div>
     {% endif %}
 </div>
+
+<style>
+    /* Add custom CSS for hover effect */
+    .hover-effect:hover .count-badge {
+        background-color: #007bff; /* Change to a more vibrant color */
+        color: white; /* Ensure text is readable */
+        transform: scale(1.1); /* Slightly increase size */
+        transition: all 0.3s ease; /* Smooth transition */
+    }
+
+    .hover-effect:hover .badge-success {
+        background-color: #28a745; /* Change to a more vibrant color */
+    }
+
+    .hover-effect {
+        transition: background-color 0.3s ease; /* Smooth transition for the list item */
+    }
+
+    .hover-effect:hover {
+        background-color: #f8f9fa; /* Light background color on hover */
+    }
+</style>
 {% endblock %}

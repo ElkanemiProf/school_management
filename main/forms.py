@@ -63,27 +63,52 @@ class StudentForm(forms.ModelForm):
 
 from django import forms
 from .models import Subject
-
 class SubjectForm(forms.ModelForm):
+    teachers = forms.ModelMultipleChoiceField(
+        queryset=Teacher.objects.all(),
+        widget=forms.CheckboxSelectMultiple,  # Allows selecting multiple teachers
+        required=False
+    )
+
     class Meta:
         model = Subject
-        fields = ['name', 'level', 'code', 'description', 'teacher']
+        fields = ['name', 'level', 'code', 'description', 'teachers']
 
+    def save(self, commit=True):
+        # Save the subject instance
+        subject = super().save(commit=False)
+        if commit:
+            subject.save()  # Save the subject to the database
+
+            # Update the ManyToManyField for teachers
+            if 'teachers' in self.cleaned_data:
+                subject.teachers.set(self.cleaned_data['teachers'])  # Use .set() on the ManyToManyField
+
+            # Save the many-to-many data
+            self.save_m2m()
+
+        return subject
 
 from django import forms
 from .models import IncidentReport
 
+
 class IncidentReportForm(forms.ModelForm):
     class Meta:
         model = IncidentReport
-        fields = ['incident_type', 'description', 'location']
+        fields = ['incident_type', 'description', 'location', 'comments','priority', 'reported_by_name']  # Use 'reported_by_name'
         widgets = {
             'incident_type': forms.Select(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
             'location': forms.TextInput(attrs={'class': 'form-control'}),
+            'comments': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'reported_by_name': forms.TextInput(attrs={'class': 'form-control'}),  # Add widget for 'reported_by_name'
         }
+class IncidentUpdateForm(forms.ModelForm):
+    class Meta:
+        model = IncidentReport
+        fields = ['priority', 'comments']  # Add any other fields you want to update
 
-# in forms.py
 from django import forms
 from .models import Budget
 

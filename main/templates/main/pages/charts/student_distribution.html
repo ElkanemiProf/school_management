@@ -14,78 +14,76 @@
     }
 
     .charts-section {
-        width: 60%; /* Adjust width of the charts container */
-    }
-
-    .image-section {
-        width: 40%; /* Adjust width of the image container */
+        width: 100%; /* Full width for the charts container */
         display: flex;
         flex-wrap: wrap;
-        justify-content: center;
-        gap: 15px; /* Add space between images */
+        gap: 20px; /* Add space between charts */
     }
 
-    .image-section img {
-        width: 46%; /* Adjust size of each image */
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-        transition: transform 0.3s ease;
+    .chart-card {
+        flex: 1; /* Each chart will take equal space */
+        min-width: 300px; /* Minimum width for each chart */
     }
 
-    .image-section img:hover {
-        transform: scale(2.05); /* Enlarge image slightly on hover */
+    .dropdown-container {
+        margin-bottom: 20px;
+    }
+
+    .dropdown-container label {
+        font-weight: bold;
+        margin-right: 10px;
+    }
+
+    .dropdown-container select {
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
     }
 </style>
 
 <div class="container-fluid page-body-wrapper">
     <div class="main-panel">
         <div class="content-wrapper">
-            <!-- Visualization Container: Charts on one side, Images on the other -->
-            <div class="visualization-container">
-                <!-- Charts Section -->
-                <div class="charts-section">
-                    <!-- Stacked Bar Chart - Full Width -->
-                    <div class="row">
-                        <div class="col-lg-12 grid-margin stretch-card">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h4 class="card-title">Student Distribution by Gender and Class</h4>
-                                    <canvas id="stackedBarChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Dropdown for Class Selection -->
+            <div class="dropdown-container">
+                <label for="class-select">Select Class:</label>
+                <select id="class-select">
+                    {% for class in class_names %}
+                        <option value="{{ class }}">{{ class }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-                    <!-- Pie and Doughnut Charts Side by Side -->
-                    <div class="row">
-                        <!-- Pie Chart - Gender Distribution -->
-                        <div class="col-lg-6 grid-margin stretch-card">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h4 class="card-title">Gender Distribution</h4>
-                                    <canvas id="genderDistributionChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Doughnut Chart - Day Students vs Boarders -->
-                        <div class="col-lg-6 grid-margin stretch-card">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h4 class="card-title">Day Students vs Boarders</h4>
-                                    <canvas id="residencyDistributionChart"></canvas>
-                                </div>
-                            </div>
+            <!-- Charts Section -->
+            <div class="charts-section">
+                <!-- Stacked Bar Chart -->
+                <div class="chart-card">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">Students Distribution by Gender and Class</h4>
+                            <canvas id="stackedBarChart"></canvas>
                         </div>
                     </div>
                 </div>
 
-                <!-- Image Section -->
-                <div class="image-section">
-                    <img src="{% static 'assets/images/pic1.webp' %}" alt="Picture 1">
-                    <img src="{% static 'assets/images/pic2.webp' %}" alt="Picture 2">
-                    <img src="{% static 'assets/images/pic3.webp' %}" alt="Picture 3">
-                    <img src="{% static 'assets/images/pic4.webp' %}" alt="Picture 4">
+                <!-- Pie Chart - Gender Distribution -->
+                <div class="chart-card">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">Gender Distribution</h4>
+                            <canvas id="genderDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Doughnut Chart - Day Students vs Boarders -->
+                <div class="chart-card">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">Day Students vs Boarders</h4>
+                            <canvas id="residencyDistributionChart"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -96,91 +94,94 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    // Stacked Bar Chart - Student Distribution by Gender and Class
-    var ctx = document.getElementById('stackedBarChart').getContext('2d');
-    var stackedBarChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: {{ class_names|safe }},
-            datasets: [
-                {
-                    label: 'Male Students',
-                    data: {{ male_student_counts|safe }},
-                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                },
-                {
-                    label: 'Female Students',
-                    data: {{ female_student_counts|safe }},
-                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 1
-                }
-            ]
-        },
-        options: {
-            scales: {
-                x: {
-                    stacked: true
-                },
-                y: {
-                    stacked: true,
-                    beginAtZero: true
-                }
+    // Data for all classes (passed from the backend)
+    const classData = {
+        {% for class in class_names %}
+            "{{ class }}": {
+                male_students: {{ male_student_counts|safe }}[{{ forloop.counter0 }}],
+                female_students: {{ female_student_counts|safe }}[{{ forloop.counter0 }}],
+                gender_counts: [{{ gender_counts|safe }}[{{ forloop.counter0 }}][0], {{ gender_counts|safe }}[{{ forloop.counter0 }}][1]],
+                residency_counts: [{{ residency_counts|safe }}[{{ forloop.counter0 }}][0], {{ residency_counts|safe }}[{{ forloop.counter0 }}][1]]
             },
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-            }
-        }
-    });
+        {% endfor %}
+    };
 
-    // Pie Chart - Gender Distribution
-    var ctx2 = document.getElementById('genderDistributionChart').getContext('2d');
-    var genderDistributionChart = new Chart(ctx2, {
-        type: 'pie',
-        data: {
-            labels: ['Male', 'Female'],
-            datasets: [{
-                data: {{ gender_counts|safe }},
-                backgroundColor: ['rgba(54, 162, 235, 0.2)', 'rgba(255, 99, 132, 0.2)'],
-                borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)'],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-            }
-        }
-    });
+    let stackedBarChart, genderDistributionChart, residencyDistributionChart;
 
-    // Doughnut Chart - Day Students vs Boarders
-    var ctx3 = document.getElementById('residencyDistributionChart').getContext('2d');
-    var residencyDistributionChart = new Chart(ctx3, {
-        type: 'doughnut',
-        data: {
-            labels: ['Day Students', 'Boarders'],
-            datasets: [{
-                data: {{ residency_counts|safe }},
-                backgroundColor: ['rgba(255, 206, 86, 0.2)', 'rgba(75, 192, 192, 0.2)'],
-                borderColor: ['rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)'],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
+    function initializeCharts(selectedClass) {
+        const data = classData[selectedClass];
+
+        // Stacked Bar Chart
+        const ctx1 = document.getElementById('stackedBarChart').getContext('2d');
+        if (stackedBarChart) stackedBarChart.destroy();
+        stackedBarChart = new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: [selectedClass],
+                datasets: [
+                    {
+                        label: 'Male Students',
+                        data: [data.male_students],
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Female Students',
+                        data: [data.female_students],
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } },
+                plugins: { legend: { position: 'top' } }
             }
-        }
+        });
+
+        // Pie Chart - Gender Distribution
+        const ctx2 = document.getElementById('genderDistributionChart').getContext('2d');
+        if (genderDistributionChart) genderDistributionChart.destroy();
+        genderDistributionChart = new Chart(ctx2, {
+            type: 'pie',
+            data: {
+                labels: ['Male', 'Female'],
+                datasets: [{
+                    data: data.gender_counts,
+                    backgroundColor: ['rgba(54, 162, 235, 0.2)', 'rgba(255, 99, 132, 0.2)'],
+                    borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'top' } } }
+        });
+
+        // Doughnut Chart - Day Students vs Boarders
+        const ctx3 = document.getElementById('residencyDistributionChart').getContext('2d');
+        if (residencyDistributionChart) residencyDistributionChart.destroy();
+        residencyDistributionChart = new Chart(ctx3, {
+            type: 'doughnut',
+            data: {
+                labels: ['Day Students', 'Boarders'],
+                datasets: [{
+                    data: data.residency_counts,
+                    backgroundColor: ['rgba(255, 206, 86, 0.2)', 'rgba(75, 192, 192, 0.2)'],
+                    borderColor: ['rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'top' } } }
+        });
+    }
+
+    // Initialize charts with the first class by default
+    initializeCharts(document.getElementById('class-select').value);
+
+    // Handle dropdown change event
+    document.getElementById('class-select').addEventListener('change', function() {
+        initializeCharts(this.value);
     });
 </script>
 {% endblock %}

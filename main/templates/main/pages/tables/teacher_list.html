@@ -1,5 +1,3 @@
-<!-- teacher_list.html -->
-
 {% extends 'main/base.html' %}
 {% load static %}
 
@@ -8,78 +6,162 @@
 {% block content %}
 <style>
     body {
-        background-color: #F0F4F8; /* A cool, soft background color */
+        background-color: #F0F4F8;
+        font-family: 'Arial', sans-serif;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
     }
 
     .teacher-container {
         display: flex;
         justify-content: space-between;
-        align-items: flex-start;
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .teacher-stats {
+        width: 35%;
+        background: white;
+        padding: 20px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    .teacher-stats h3 {
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+    .teacher-stats p {
+        font-size: 18px;
+        margin: 10px 0;
+        color: #555;
+    }
+
+    .teacher-subjects {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .subject-card {
+        background: #ffffff;
+        padding: 15px;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .subject-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .subject-card h5 {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .subject-card p {
+        font-size: 16px;
+        color: #666;
     }
 
     .teacher-table {
-        width: 55%; /* Adjust the width of the table container */
+        width: 65%;
         background-color: white;
         padding: 20px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         border-radius: 8px;
     }
 
-    .teacher-image {
-        width: 50%; /* Adjust the width of the image container */
-        padding: 20px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+    .teacher-table h2 {
+        font-weight: bold;
+        margin-bottom: 20px;
+        color: #333;
     }
 
-    .teacher-image img {
+    .teacher-table table {
         width: 100%;
-        border-radius: 8px;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        border-collapse: collapse;
+    }
+
+    .teacher-table th,
+    .teacher-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .teacher-table th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .teacher-table tr:hover {
+        background-color: #f1f1f1;
     }
 </style>
 
-<div class="teacher-container">
-    <!-- Table with teacher details on the left -->
-    <div class="teacher-table">
-        <h2 class="mb-4">Teachers</h2>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Teacher Name</th>
-                    <th>Subjects</th>
-                    <th>Classes</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for teacher in teachers %}
-                <tr>
-                    <!-- Display the full name of the teacher -->
-                    <td>{{ teacher.user.first_name }} {{ teacher.user.last_name }}</td>
-
-                    <!-- Display the subjects taught by the teacher -->
-                    <td>
-                        {% for subject in teacher.subject_taught.all %}
-                            {{ subject.name }} ({{ subject.level }})<br>
-                        {% endfor %}
-                    </td>
-
-                    <!-- Display the classes taught by the teacher -->
-                    <td>
-                        {% for school_class in teacher.classes_taught.all %}
-                            {{ school_class.level }}{{ school_class.section }}<br>
-                        {% endfor %}
-                    </td>
-                </tr>
+<div class="container">
+    <!-- Teacher Details and Statistics -->
+    <div class="teacher-container">
+        <!-- Teacher Statistics -->
+        <div class="teacher-stats">
+            <h3>Teacher Statistics</h3>
+            <p><strong>Total Teachers:</strong> {{ total_teachers }}</p>
+            <p><strong>Junior Level Teachers:</strong> {{ junior_teachers }}</p>
+            <p><strong>Senior Level Teachers:</strong> {{ senior_teachers }}</p>
+            
+            <h4 class="mt-4">Teachers Per Subject</h4>
+            <div class="teacher-subjects">
+                {% for subject_name, details in subjects_with_teachers.items %}
+                <div class="subject-card">
+                    <h5>{{ subject_name }} ({{ details.level }})</h5>
+                    <p>{{ details.count }} Teachers</p>
+                </div>
                 {% endfor %}
-            </tbody>
-        </table>
-    </div>
+            </div>
+        </div>
 
-    <!-- Image of teachers on the right -->
-    <div class="teacher-image">
-        <img src="{% static 'assets/images/group.webp' %}" alt="Group of African Teachers">
+        <!-- Table with teacher details -->
+        <div class="teacher-table">
+            <h2>Teachers</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Teacher Name</th>
+                        <th>Subjects</th>
+                        <th>Classes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for teacher in teachers %}
+                    <tr>
+                        <td>{{ teacher.user.first_name }} {{ teacher.user.last_name }}</td>
+                        <td>
+                            {% for subject in teacher.subject_taught.all %}
+                                {{ subject.name }} ({{ subject.level }})<br>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for school_class in teacher.classes_taught.all %}
+                                {{ school_class.level }}{{ school_class.section }}<br>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock content %}

@@ -1,0 +1,32 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Update Incident</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="incident_type" class="form-label">Incident Type</label>
+            <input type="text" class="form-control" id="incident_type" name="incident_type" value="{{ incident.incident_type }}">
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="4">{{ incident.description }}</textarea>
+        </div>
+        <div class="mb-3">
+            <label for="location" class="form-label">Location</label>
+            <input type="text" class="form-control" id="location" name="location" value="{{ incident.location }}">
+        </div>
+        <div class="mb-3">
+            <label for="comments" class="form-label">Add Comments</label>
+            <textarea class="form-control" id="comments" name="comments" rows="4" placeholder="Add new comments here..."></textarea>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Previous Comments</label>
+            <pre>{{ incident.comments }}</pre>
+        </div>
+        <button type="submit" class="btn btn-primary">Update Incident</button>
+    </form>
+</div>
+{% endblock %}

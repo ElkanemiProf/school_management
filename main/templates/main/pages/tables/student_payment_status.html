@@ -28,11 +28,47 @@
         box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
         border-radius: 8px;
         width: 100%; /* Ensure it is responsive */
-        max-width: 600px; /* Limit the max width */
+        max-width: 800px; /* Increase max-width to accommodate the new column */
     }
 
     .form-section h3, .form-section h4 {
         color: #333; /* Dark text color for readability */
+    }
+
+    /* Modal styling */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+        background-color: #fff;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 50%;
+        border-radius: 8px;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
     }
 </style>
 
@@ -60,6 +96,15 @@
                 </select>
             </div>
 
+            <!-- Filter by Payment Status -->
+            <div class="form-group mb-3">
+                <select class="form-select" name="payment_status">
+                    <option value="">Select Payment Status</option>
+                    <option value="paid" {% if payment_status == 'paid' %}selected{% endif %}>Paid</option>
+                    <option value="unpaid" {% if payment_status == 'unpaid' %}selected{% endif %}>Unpaid</option>
+                </select>
+            </div>
+
             <button type="submit" class="btn btn-primary">Search</button>
         </form>
         
@@ -80,6 +125,7 @@
                         <th>Student Name</th>
                         <th>Class</th>
                         <th>Payment Status</th>
+                        <th>View Parent Contact</th> <!-- New column -->
                     </tr>
                 </thead>
                 <tbody>
@@ -88,6 +134,13 @@
                             <td>{{ student.first_name }} {{ student.last_name }}</td>
                             <td>{{ student.school_class.level }} {{ student.school_class.section }}</td>
                             <td>Paid</td>
+                            <td>
+                                <button class="btn btn-info btn-sm view-contact" 
+                                        data-parents-name="{{ student.parents_name }}"
+                                        data-parents-phone="{{ student.parents_phone_number }}">
+                                    View Contact
+                                </button>
+                            </td>
                         </tr>
                     {% endfor %}
                     {% for student in unpaid_students %}
@@ -95,6 +148,13 @@
                             <td>{{ student.first_name }} {{ student.last_name }}</td>
                             <td>{{ student.school_class.level }} {{ student.school_class.section }}</td>
                             <td>Unpaid</td>
+                            <td>
+                                <button class="btn btn-info btn-sm view-contact" 
+                                        data-parents-name="{{ student.parents_name }}"
+                                        data-parents-phone="{{ student.parents_phone_number }}">
+                                    View Parent Contact
+                                </button>
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -104,4 +164,54 @@
         {% endif %}
     </div>
 </div>
+
+<!-- Modal for displaying contact details -->
+<div id="contactModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h4>Contact Details</h4>
+        <p><strong>Parent's Name:</strong> <span id="modalParentsName"></span></p>
+        <p><strong>Parent's Phone:</strong> <span id="modalParentsPhone"></span></p>
+    </div>
+</div>
+
+<!-- JavaScript to handle the modal -->
+<script>
+    // Get the modal
+    const modal = document.getElementById("contactModal");
+
+    // Get the <span> element that closes the modal
+    const span = document.getElementsByClassName("close")[0];
+
+    // Get all "View Contact" buttons
+    const viewContactButtons = document.querySelectorAll(".view-contact");
+
+    // Loop through all buttons and add a click event listener
+    viewContactButtons.forEach(button => {
+        button.addEventListener("click", function() {
+            // Get the parent's name and phone number from the button's data attributes
+            const parentsName = this.getAttribute("data-parents-name");
+            const parentsPhone = this.getAttribute("data-parents-phone");
+
+            // Set the modal content
+            document.getElementById("modalParentsName").textContent = parentsName;
+            document.getElementById("modalParentsPhone").textContent = parentsPhone;
+
+            // Display the modal
+            modal.style.display = "block";
+        });
+    });
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+        modal.style.display = "none";
+    };
+
+    // When the user clicks anywhere outside the modal, close it
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    };
+</script>
 {% endblock content %}

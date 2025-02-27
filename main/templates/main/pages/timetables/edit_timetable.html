@@ -1,0 +1,172 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #f4f4f4;
+    }
+
+    .container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h3 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 25px; /* More padding for better visibility */
+        text-align: center;
+        border: 1px solid #ddd;
+        vertical-align: middle;
+        font-size: 14px;
+        position: relative; /* Important for better drag behavior */
+    }
+
+    th {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .dropzone {
+        height: 80px;
+        position: relative;
+        background-color: #f8f9fa;
+        border: 2px dashed #ccc;
+        border-radius: 8px;
+        transition: background 0.3s;
+    }
+
+    .dropzone:hover {
+        background-color: #e9ecef;
+    }
+
+    .draggable {
+        padding: 15px;
+        background: #007bff;
+        color: white;
+        border-radius: 5px;
+        cursor: grab;
+        text-align: center;
+        font-weight: bold;
+        width: 100%; /* Make full width */
+        box-sizing: border-box; /* Prevent overflow */
+        min-height: 50px; /* Ensure proper spacing */
+    }
+
+    .draggable:active {
+        cursor: grabbing;
+    }
+
+    .btn-container {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        font-size: 16px;
+    }
+
+</style>
+
+<div class="container mt-5">
+    <h3>Editing Timetable for {{ school_class.level }} {{ school_class.section }}</h3>
+
+    <div class="text-center">
+        <a href="{% url 'timetable_view' school_class.id %}" class="btn btn-secondary mb-4">← Back</a>
+    </div>
+
+    <form method="post" id="timetable-form">
+        {% csrf_token %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Day</th>
+                    {% for i in "123456789" %}
+                    <th>Period {{ forloop.counter }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for day, schedule in timetable.items %}
+                <tr>
+                    <td><strong>{{ day }}</strong></td>
+                    {% for subject in schedule %}
+                    <td class="dropzone" ondragover="allowDrop(event)" ondrop="drop(event, '{{ day }}', {{ forloop.counter0 }})">
+                        <div class="draggable" draggable="true" ondragstart="drag(event)">
+                            {{ subject }}
+                        </div>
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Hidden Input to Store Timetable Data -->
+        <input type="hidden" id="timetable-data" name="timetable_data">
+
+        <div class="btn-container">
+            <button type="submit" class="btn btn-success">Save Timetable</button>
+        </div>
+    </form>
+</div>
+
+<!-- Drag & Drop JavaScript -->
+<script>
+    let draggedItem = null;
+
+    function drag(event) {
+        draggedItem = event.target;
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", draggedItem.innerText);
+    }
+
+    function allowDrop(event) {
+        event.preventDefault();
+    }
+
+    function drop(event, day, periodIndex) {
+        event.preventDefault();
+        let targetItem = event.target.closest(".draggable");  // Get the closest draggable element
+
+        if (draggedItem && targetItem && draggedItem !== targetItem) {
+            // Swap subjects instead of duplicating
+            let temp = draggedItem.innerText;
+            draggedItem.innerText = targetItem.innerText;
+            targetItem.innerText = temp;
+        }
+        updateTimetableData();
+    }
+
+    function updateTimetableData() {
+        let timetable = {};
+        document.querySelectorAll("tbody tr").forEach(row => {
+            let day = row.cells[0].innerText;
+            let periods = [];
+            row.querySelectorAll(".draggable").forEach(subject => {
+                periods.push(subject.innerText.trim());
+            });
+            timetable[day] = periods;
+        });
+
+        document.getElementById("timetable-data").value = JSON.stringify(timetable);
+    }
+
+    document.getElementById("timetable-form").addEventListener("submit", function () {
+        updateTimetableData();
+    });
+</script>
+
+{% endblock %}

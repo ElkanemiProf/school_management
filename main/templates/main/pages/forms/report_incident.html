@@ -51,6 +51,18 @@
             {{ form.location.label_tag }} 
             {{ form.location }} 
         </div>
+        <div class="mb-3">
+            {{ form.reported_by_name.label_tag }}  <!-- Use 'reported_by_name' instead of 'reported_by' -->
+            {{ form.reported_by_name }} 
+        </div>
+        <div class="mb-3">
+            {{ form.comments.label_tag }}  <!-- Add this for the comments field -->
+            {{ form.comments }} 
+        </div>
+        <div class="mb-3">
+            {{ form.priority.label_tag }}  <!-- Add this for the priority field -->
+            {{ form.priority }} 
+        </div>
         <button type="submit" class="btn btn-primary">Submit Report</button>
     </form>
 

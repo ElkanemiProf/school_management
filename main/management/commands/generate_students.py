@@ -1,43 +1,37 @@
 from django.core.management.base import BaseCommand
+from your_app.models import Student, SchoolClass
 from faker import Faker
 import random
-from main.models import Student, SchoolClass  # Replace 'your_app' with the name of your app
-from .nigerian_names import NigerianNamesProvider
+
+fake = Faker()
 
 class Command(BaseCommand):
-    help = 'Generates students for all classes with Nigerian female names'
+    help = 'Generate sample student data with guardian and parent details'
 
     def handle(self, *args, **kwargs):
-        fake = Faker()
-        fake.add_provider(NigerianNamesProvider)  # Add the custom provider
+        school_classes = list(SchoolClass.objects.all())  # Fetch all classes
+        if not school_classes:
+            self.stdout.write(self.style.WARNING("No school classes found! Add some classes first."))
+            return
 
-        classes = ['JS1A', 'JS1B', 'JS1C', 'JS1D',
-                   'JS2A', 'JS2B', 'JS2C', 'JS2D',
-                   'JS3A', 'JS3B', 'JS3C', 'JS3D',
-                   'SS1A', 'SS1B', 'SS1C', 'SS1D',
-                   'SS2A', 'SS2B', 'SS2C', 'SS2D',
-                   'SS3A', 'SS3B', 'SS3C', 'SS3D']
+        for _ in range(10):  # Generate 10 students
+            school_class = random.choice(school_classes)  # Assign a random class
+           
+            student = Student.objects.create(
+                first_name=fake.first_name(),
+                last_name=fake.last_name(),
+                gender=random.choice(['M', 'F']),
+                date_of_birth=fake.date_of_birth(minimum_age=10, maximum_age=18),
+                admission_date=fake.date_this_decade(),
+                school_class=school_class,
+                residency_status=random.choice(['boarder', 'day']),
+                fee_status=random.choice(['paid', 'unpaid']),
+                guardian_name=fake.name(),
+                guardian_phone=fake.phone_number(),
+                guardian_email=fake.email(),
+                parent_name=fake.name(),
+                parent_phone=fake.phone_number(),
+                parent_email=fake.email(),
+            )
 
-        for class_name in classes:
-            school_class, created = SchoolClass.objects.get_or_create(level=class_name[:-1], section=class_name[-1])
-
-            num_students = random.randint(25, 35)
-
-            for _ in range(num_students):
-                first_name = fake.nigerian_female_name()
-                last_name = fake.last_name()
-                gender = 'female'
-                residency_status = random.choice(['boarder', 'day_student'])
-
-                Student.objects.create(
-                    first_name=first_name,
-                    last_name=last_name,
-                    gender=gender,
-                    school_class=school_class,
-                    school_fees_status=random.choice(['paid', 'unpaid']),
-                    residency_status=residency_status
-                )
-
-                self.stdout.write(self.style.SUCCESS(f"Created student {first_name} {last_name} in class {class_name}"))
-
-        self.stdout.write(self.style.SUCCESS("Student generation complete."))
+            self.stdout.write(self.style.SUCCESS(f"Created student: {student.first_name} {student.last_name}"))

@@ -39,7 +39,7 @@
     </div>
     <div class="col-md-3 mb-4">
       <div class="card bg-success text-white text-center p-4">
-        <h6 class="card-title">2023/2024 Admissions</h6>
+        <h6 class="card-title">2025/2026 Admissions</h6>
         <h3>{{ current_year_admissions }}</h3>
       </div>
     </div>
@@ -61,53 +61,27 @@
     </div>
   </div>
 
+  
+
   <!-- Admissions Line Chart -->
   <div class="row mt-4">
     <div class="col-md-12">
       <div class="card p-4" style="height: 500px;">
-        <h5 class="card-title">Admissions Count by Year</h5>
-        <canvas id="admissionChart"></canvas>
+        <h5 class="card-title">Admissions Trend Over Years</h5>
+        {% if admission_years and admission_counts %}
+          <canvas id="admissionChart"></canvas>
+        {% else %}
+          <p>No admissions data available.</p>
+        {% endif %}
       </div>
     </div>
   </div>
 </div>
 
-
 <!-- Chart.js and Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<!-- Admissions Line Chart -->
-<script>
-  const ctxAdmissions = document.getElementById('admissionChart').getContext('2d');
-  const admissionsChart = new Chart(ctxAdmissions, {
-    type: 'line',
-    data: {
-      labels: {{ admission_years|safe }},
-      datasets: [{
-        label: 'Number of Admissions',
-        data: {{ admission_counts|safe }},
-        borderColor: 'rgba(75, 192, 192, 1)',
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        fill: true,
-        borderWidth: 2,
-        tension: 0.4
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'top' }
-      },
-      scales: {
-        x: { title: { display: true, text: 'Year' } },
-        y: { beginAtZero: true, title: { display: true, text: 'Admissions Count' } }
-      }
-    }
-  });
-</script>
 
 <!-- Budget Chart -->
 <script>
@@ -178,6 +152,37 @@
   });
 </script>
 
+<!-- Admissions Line Chart -->
+<script>
+  const ctxAdmissions = document.getElementById('admissionChart').getContext('2d');
+  const admissionsChart = new Chart(ctxAdmissions, {
+    type: 'line',
+    data: {
+      labels: {{ admission_years|safe }},
+      datasets: [{
+        label: 'Number of Admissions',
+        data: {{ admission_counts|safe }},
+        borderColor: 'rgba(75, 192, 192, 1)',
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        fill: true,
+        borderWidth: 2,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top' }
+      },
+      scales: {
+        x: { title: { display: true, text: 'Year' } },
+        y: { beginAtZero: true, title: { display: true, text: 'Admissions Count' } }
+      }
+    }
+  });
+</script>
+
 <!-- Dashboard Time Update -->
 <script>
   function updateTime() {
@@ -206,4 +211,4 @@
   }
 </style>
 
-{% endblock content %}
+{% endblock %}

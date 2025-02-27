@@ -16,10 +16,17 @@
             <p><strong>School Class:</strong> {{ student.school_class }}</p>
             <p><strong>Residency Status:</strong> {{ student.get_residency_status_display }}</p>
             <p><strong>School Fees Status:</strong> {{ student.get_fee_status }}</p>
+
+            <h4 class="mt-4">Guardian Details</h4>
+<p><strong>Name:</strong> {% if student.guardians_name %}{{ student.guardians_name }}{% else %}N/A{% endif %}</p>
+<p><strong>Phone:</strong> {% if student.guardians_phone_number %}{{ student.guardians_phone_number }}{% else %}N/A{% endif %}</p>
+
+<h4 class="mt-4">Parent Details</h4>
+<p><strong>Name:</strong> {% if student.parents_name %}{{ student.parents_name }}{% else %}N/A{% endif %}</p>
+<p><strong>Phone:</strong> {% if student.parents_phone_number %}{{ student.parents_phone_number }}{% else %}N/A{% endif %}</p>
         </div>
         <div class="card-footer">
             <a href="{% url 'view_students' class_id=student.school_class.id %}" class="btn btn-primary">Back to Class List</a>
-
         </div>
     </div>
 </div>

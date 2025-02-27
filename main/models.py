@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
+import json  # Required to store the dictionary properly
 
 
 class UserProfile(models.Model):
@@ -79,6 +80,11 @@ class Student(models.Model):
     school_class = models.ForeignKey(SchoolClass, on_delete=models.CASCADE, related_name='students')
     school_fees_status = models.CharField(max_length=6, choices=[('paid', 'Paid'), ('unpaid', 'Unpaid')])
     residency_status = models.CharField(max_length=12, choices=RESIDENCY_STATUS_CHOICES)
+    guardians_name = models.CharField(max_length=100, blank=True, null=True)
+    guardians_phone_number = models.CharField(max_length=15, blank=True, null=True)
+    parents_name = models.CharField(max_length=100, blank=True, null=True)
+    parents_phone_number = models.CharField(max_length=15, blank=True, null=True)
+
 
     def get_fee_status(self):
         last_payment = self.feepayment_set.order_by('-payment_date').first()
@@ -174,7 +180,8 @@ class FeePayment(models.Model):
 
     def __str__(self):
         return f"{self.student} - {self.amount_paid} - {self.status}"
-
+from django.db import models
+from django.contrib.auth.models import User
 
 class IncidentReport(models.Model):
     INCIDENT_TYPE_CHOICES = [
@@ -185,15 +192,43 @@ class IncidentReport(models.Model):
         ('other', 'Other'),
     ]
 
-    reported_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    PRIORITY_CHOICES = [
+        ('low', 'Low'),
+        ('medium', 'Medium'),
+        ('high', 'High'),
+    ]
+
+    STATUS_CHOICES = [
+        ('reported', 'Reported'),
+        ('investigating', 'Under Investigation'),
+        ('resolved', 'Resolved'),
+    ]
+
+    CATEGORY_CHOICES = [
+        ('bullying', 'Bullying'),
+        ('vandalism', 'Vandalism'),
+        ('theft', 'Theft'),
+        ('other', 'Other'),
+    ]
+
+    reported_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reported_incidents', default=1)  # Replace '1' with the appropriate default user ID
     incident_type = models.CharField(max_length=50, choices=INCIDENT_TYPE_CHOICES, null=True, blank=True)
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='other')
     description = models.TextField()
-    date_reported = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     location = models.CharField(max_length=255, null=True, blank=True)
+    date_reported = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     resolved = models.BooleanField(default=False)
+    comments = models.TextField(null=True, blank=True)
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='reported')
+    assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_incidents')
+    resolution_details = models.TextField(null=True, blank=True)
+    follow_up_date = models.DateField(null=True, blank=True)
+    reported_by_name = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
         return f"Incident reported by {self.reported_by.username} on {self.date_reported}"
+
 
 
 
@@ -324,12 +359,9 @@ class TimeSlot(models.Model):
 
 
 
-
-
-
 class Timetable(models.Model):
     school_class = models.ForeignKey(SchoolClass, on_delete=models.CASCADE)
-    day = models.CharField(max_length=10, default='Monday')  # Set a default value
+    day = models.CharField(max_length=10, default='Monday')
     period_1 = models.CharField(max_length=100, null=True, blank=True)
     period_2 = models.CharField(max_length=100, null=True, blank=True)
     period_3 = models.CharField(max_length=100, null=True, blank=True)
@@ -340,5 +372,9 @@ class Timetable(models.Model):
     period_8 = models.CharField(max_length=100, null=True, blank=True)
     period_9 = models.CharField(max_length=100, null=True, blank=True)
 
+    # ✅ Add this new field to store schedule as JSON
+    schedule = models.JSONField(default=dict, blank=True, null=True)
+
     def __str__(self):
         return f"Timetable for {self.school_class.level} {self.school_class.section} on {self.day}"
+

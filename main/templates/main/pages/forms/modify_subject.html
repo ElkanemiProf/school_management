@@ -1,59 +1,97 @@
 {% extends 'main/base.html' %}
+{% load static %}
 
 {% block title %}Modify Subject{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <!-- Close button added here -->
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="card-title">Modify Subject</h4>
-                    <!-- Close button (X) that navigates back -->
-                    <a href="{% url 'subject_list' %}" class="btn-close" aria-label="Close"></a>
-                </div>
-                
-                <form method="post">
-                    {% csrf_token %}
-                    
-                    <div class="form-group mb-3">
-                        <label for="name">Name</label>
-                        <input type="text" class="form-control" id="name" name="name" value="{{ form.name.value|default_if_none:'' }}" placeholder="Subject Name">
-                    </div>
-                    
-                    <div class="form-group mb-3">
-                        <label for="level">Level</label>
-                        <select class="form-select" id="level" name="level">
-                            {% for value, label in form.level.field.choices %}
-                                <option value="{{ value }}" {% if form.level.value == value %}selected{% endif %}>{{ label }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    
-                    <div class="form-group mb-3">
-                        <label for="code">Code</label>
-                        <input type="text" class="form-control" id="code" name="code" value="{{ form.code.value|default_if_none:'' }}" placeholder="Subject Code">
-                    </div>
-                    
-                    <div class="form-group mb-3">
-                        <label for="description">Description</label>
-                        <textarea class="form-control" id="description" name="description" placeholder="Subject Description">{{ form.description.value|default_if_none:'' }}</textarea>
-                    </div>
-                    
-                    <div class="form-group mb-3">
-                        <label for="teacher">Teacher</label>
-                        <select class="form-select" id="teacher" name="teacher">
-                            {% for value, label in form.teacher.field.choices %}
-                                <option value="{{ value }}" {% if form.teacher.value == value %}selected{% endif %}>{{ label }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary w-100">Save Changes</button>
-                </form>
-            </div>
-        </div>
-    </div>
+<style>
+    body {
+        background-color: #f8f9fa;
+        font-family: 'Arial', sans-serif;
+    }
+
+    .form-container {
+        max-width: 700px;
+        margin: 20px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-container h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    select, input, textarea {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .btn-container {
+        text-align: center;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+</style>
+
+<div class="form-container">
+    <h2>Modify Subject: {{ subject.name }}</h2>
+
+    <!-- Display the form -->
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save Changes</button>
+</form>
+
+<!-- Example link to update teachers -->
+<a href="{% url 'update_teachers_ajax' subject_id=subject.id %}">Update Teachers</a>
+
+<!-- Example JavaScript for AJAX request -->
+<script>
+    const subjectId = {{ subject.id }};
+    const updateTeachersUrl = "{% url 'update_teachers_ajax' subject_id=subject.id %}";
+
+    console.log("Subject ID:", subjectId);  // Debugging
+    console.log("Update Teachers URL:", updateTeachersUrl);  // Debugging
+
+    // Example AJAX request
+    fetch(updateTeachersUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}',  // Add CSRF token for security
+        },
+        body: JSON.stringify({ teacher_ids: [1, 2, 3] }),  // Replace with actual teacher IDs
+    })
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch(error => console.error(error));
+</script>
 </div>
-{% endblock content %}
+
+{% endblock %}

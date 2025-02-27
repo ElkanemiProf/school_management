@@ -7,6 +7,8 @@
     
     <!-- Add the Back Button -->
     <a href="{% url 'hoverable_school_classes' %}" class="btn btn-secondary mb-4">← Back</a>
+    <a href="{% url 'edit_timetable' school_class.id %}" class="btn btn-primary mb-4">Edit Timetable</a>
+
     
     <form method="post">
         {% csrf_token %}

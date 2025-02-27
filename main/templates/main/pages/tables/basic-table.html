@@ -56,6 +56,7 @@
         background-color: #f8f9fa;
         font-weight: 600;
         color: #555;
+        cursor: pointer;
     }
 
     .table-hover tbody tr:hover {
@@ -108,6 +109,18 @@
     .card:hover {
         transform: translateY(-5px);
     }
+
+    /* Styling for sorting arrow */
+    .sortable {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .sortable span {
+        font-size: 14px;
+        color: gray;
+    }
 </style>
 
 <div class="content-wrapper">
@@ -115,13 +128,13 @@
         <div class="table-section">
             <h4 class="card-title">Hoverable School Classes</h4>
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table table-hover" id="classTable">
                     <thead>
                         <tr>
                             <th>Level</th>
                             <th>Section</th>
                             <th>Number of Students</th>
-                            <th>Vacant Spaces</th>
+                            <th class="sortable" onclick="sortTable(3)">Vacant Spaces <span id="sortArrow">▼</span></th>
                             <th>Students</th>
                             <th>Timetable</th> <!-- New column for timetable generation -->
                         </tr>
@@ -151,5 +164,32 @@
         </div>
     </div>
 </div>
-{% endblock %}
 
+<!-- JavaScript for Sorting -->
+<script>
+    let ascending = true; // Track sorting order
+
+    function sortTable(columnIndex) {
+        const table = document.getElementById("classTable");
+        const tbody = table.querySelector("tbody");
+        const rows = Array.from(tbody.querySelectorAll("tr"));
+
+        rows.sort((rowA, rowB) => {
+            const cellA = rowA.children[columnIndex].textContent.trim();
+            const cellB = rowB.children[columnIndex].textContent.trim();
+            return ascending ? cellA - cellB : cellB - cellA;
+        });
+
+        // Reattach sorted rows
+        tbody.innerHTML = "";
+        rows.forEach(row => tbody.appendChild(row));
+
+        // Toggle sort order
+        ascending = !ascending;
+
+        // Update sorting arrow
+        document.getElementById("sortArrow").textContent = ascending ? "▲" : "▼";
+    }
+</script>
+
+{% endblock %}

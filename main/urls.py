@@ -3,21 +3,21 @@ from .views import student_report, student_report_excel
 from .views import maintenance_request_list, maintenance_request_create, maintenance_request_update
 from .views import dashboard_view
 from . import views
-from .views import hoverable_school_classes_view, view_students, export_class_list,add_subject_view,subject_list_view,modify_subject_view,delete_subject_view,teacher_list_view
-from .views import student_distribution_view,report_incident,incident_list,resolve_incident
-from .views import submit_maintenance_request, maintenance_request_list, resolve_maintenance_request,change_maintenance_status,edit_maintenance_request,approve_users
+from .views import hoverable_school_classes_view, view_students, export_class_list, add_subject_view, subject_list_view, modify_subject_view, delete_subject_view, teacher_list_view
+from .views import student_distribution_view, report_incident, incident_list, resolve_incident
+from .views import submit_maintenance_request, maintenance_request_list, resolve_maintenance_request, change_maintenance_status, edit_maintenance_request, approve_users
 from .views import register, registration_success
-from .views import login_view,EventCreateView
+from .views import login_view, EventCreateView
 from django.contrib.auth.views import LogoutView
 from django.conf.urls import handler403
-from .views import permission_denied_view
 from django.conf import settings
 from django.conf.urls.static import static
 from .views import upload_attendance_image, get_teacher_details
 from .views import hoverable_school_classes_view, view_timetable, generate_timetable_for_class
+from .views import timetable_view, edit_timetable_view, permission_denied_view  # Import the custom 403 view
 
-
-handler403 = permission_denied_view
+# Custom error handlers
+handler403 = permission_denied_view  # Use the custom 403 view
 
 urlpatterns = [
     path('student_report/<int:student_id>/', student_report, name='student_report'),
@@ -34,7 +34,6 @@ urlpatterns = [
     path('school_class/<int:class_id>/students/delete/<int:student_id>/', views.delete_student, name='delete_student'),
     path('school_class/<int:class_id>/upload_class_list/', views.upload_class_list, name='upload_class_list'),
 
-
     path('student-payment-status/', views.student_payment_status_view, name='student_payment_status'),
     path('add-subject/', add_subject_view, name='add_subject'),
     path('subjects/', subject_list_view, name='subject_list'),
@@ -46,7 +45,15 @@ urlpatterns = [
 
     path('report-incident/', report_incident, name='report_incident'),
     path('incidents/', incident_list, name='incident_list'),
-    path('resolve-incident/<int:incident_id>/', resolve_incident, name='resolve_incident'),
+    
+    path('incidents/resolve/<int:incident_id>/', resolve_incident, name='resolve_incident'),
+    path('incidents/delete/<int:incident_id>/', views.delete_incident, name='delete_incident'),
+    path('incidents/update/<int:id>/', views.update_incident, name='update_incident'),
+
+
+
+
+
     path('submit-maintenance-request/', submit_maintenance_request, name='submit_maintenance_request'),
     path('maintenance-request-list/', maintenance_request_list, name='maintenance_request_list'),
     path('resolve-maintenance-request/<int:request_id>/', resolve_maintenance_request, name='resolve_maintenance_request'),
@@ -100,37 +107,11 @@ urlpatterns = [
     path('view_timetable/<int:class_id>/', view_timetable, name='view_timetable'),
     path('view-timetable/<int:class_id>/', views.generate_timetable_view, name='view_timetable'),
     path('timetable/<int:class_id>/', views.generate_timetable_view, name='generate_timetable'),
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
+    path('timetable/<int:class_id>/', timetable_view, name='timetable_view'),
+    path('timetable/edit/<int:class_id>/', edit_timetable_view, name='edit_timetable'),
+    path('subjects/modify/<int:subject_id>/', modify_subject_view, name='modify_subject'),
+    path('subjects/update-teachers/<int:subject_id>/', views.update_teachers_ajax, name='update_teachers_ajax'),
 ]
+
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

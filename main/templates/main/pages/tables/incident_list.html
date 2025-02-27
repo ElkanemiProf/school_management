@@ -12,7 +12,7 @@
     }
 
     .container {
-        background-color: rgba(255, 255, 255, 0.8); /* Adds a transparent white background to the table */
+        background-color: rgba(255, 255, 255, 0.9); /* Slightly more opaque background */
         border-radius: 10px;
         padding: 20px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -21,11 +21,61 @@
     table {
         background-color: #fff; /* Ensure the table remains white */
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        margin-bottom: 1rem;
+        color: #212529;
     }
 
-    /* Add some spacing for the form */
-    form {
-        margin: 0;
+    table th,
+    table td {
+        padding: 12px;
+        vertical-align: middle;
+        border-top: 1px solid #dee2e6;
+    }
+
+    table thead th {
+        background-color: #007bff; /* Blue header background */
+        color: white; /* White text for header */
+        border-bottom: 2px solid #0056b3; /* Darker blue border */
+    }
+
+    table tbody tr:hover {
+        background-color: rgba(0, 123, 255, 0.1); /* Light blue hover effect */
+    }
+
+    .priority-low { color: green; }
+    .priority-medium { color: orange; }
+    .priority-high { color: red; }
+
+    .btn {
+        margin: 2px; /* Add spacing between buttons */
+    }
+
+    .btn-success {
+        background-color: #28a745; /* Green for resolved button */
+        border: none;
+    }
+
+    .btn-primary {
+        background-color: #007bff; /* Blue for update button */
+        border: none;
+    }
+
+    .btn-danger {
+        background-color: #dc3545; /* Red for delete button */
+        border: none;
+    }
+
+    .btn-success:hover,
+    .btn-primary:hover,
+    .btn-danger:hover {
+        opacity: 0.9; /* Slight hover effect */
+    }
+
+    .comments-cell {
+        max-width: 300px; /* Limit width of comments cell */
+        white-space: pre-wrap; /* Preserve line breaks in comments */
+        word-wrap: break-word; /* Break long words */
     }
 </style>
 
@@ -35,30 +85,52 @@
         <thead>
             <tr>
                 <th>Incident Type</th>
+                <th>Category</th>
                 <th>Description</th>
                 <th>Location</th>
+                <th>Reported By</th>
                 <th>Date Reported</th>
+                <th>Priority</th>
+                <th>Status</th>
+                
                 <th>Resolved</th>
-                <th>Action</th> <!-- New Action column -->
+                <th>Comments</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
             {% for incident in incidents %}
             <tr>
                 <td>{{ incident.incident_type }}</td>
+                <td>{{ incident.category }}</td>
                 <td>{{ incident.description }}</td>
                 <td>{{ incident.location }}</td>
+                <td>{{ incident.reported_by_name|default:"Unknown" }}</td>
                 <td>{{ incident.date_reported|date:"M d, Y, g:i a" }}</td>
-                <td>{{ incident.resolved }}</td>
+                <td class="priority-{{ incident.priority }}">{{ incident.get_priority_display }}</td>
+                <td>{{ incident.get_status_display }}</td>
+                
+                <td>{{ incident.resolved|yesno:"Yes,No" }}</td>
+                <td class="comments-cell">{{ incident.comments }}</td>
                 <td>
                     {% if not incident.resolved %}
-                    <form action="{% url 'resolve_incident' incident.id %}" method="post">
+                    <form action="{% url 'resolve_incident' incident.id %}" method="post" style="display: inline;">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-success">Mark as Resolved</button>
                     </form>
                     {% else %}
-                    Resolved
+                    <span class="text-success">Resolved</span>
                     {% endif %}
+                    <!-- Update Incident Button -->
+                    <form action="{% url 'update_incident' incident.id %}" method="get" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </form>
+                    <!-- Delete Button -->
+                    <form action="{% url 'delete_incident' incident.id %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this incident?');">Delete</button>
+                    </form>
                 </td>
             </tr>
             {% endfor %}
