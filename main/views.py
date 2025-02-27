@@ -15,6 +15,7 @@ import logging
 from django.db.models.functions import ExtractYear
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET
+from django.contrib.auth import authenticate, login
 
 # Models
 from main.models import (
