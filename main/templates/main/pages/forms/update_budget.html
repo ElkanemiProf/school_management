@@ -1,14 +1,17 @@
-
-<!-- main/create_budget.html or main/update_budget.html -->
 {% extends 'main/base.html' %}
+{% load static %}
 
 {% block content %}
+<style>
+    /* Your existing styles */
+</style>
+
 <div class="container mt-5">
-    <h2>{% if budget %}Edit Budget{% else %}Create Budget{% endif %}</h2>
+    <h2 class="mb-4">Update Budget</h2>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">{% if budget %}Update Budget{% else %}Create Budget{% endif %}</button>
+        <button type="submit" class="btn btn-primary">Update Budget</button>
     </form>
 </div>
 {% endblock %}

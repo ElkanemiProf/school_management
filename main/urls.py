@@ -64,6 +64,12 @@ urlpatterns = [
     path('budgets/create/', views.create_budget, name='create_budget'),
     path('budgets/update/<int:pk>/', views.update_budget, name='update_budget'),
     path('budgets/delete/<int:pk>/', views.delete_budget, name='delete_budget'),  
+    path('budgets/<int:budget_id>/logs/', views.view_budget_logs, name='view_budget_logs'),
+    path('student-autocomplete/', views.student_autocomplete, name='student_autocomplete'),
+
+
+
+
     path('approve-users/', views.approve_users, name='approve_users'),
     path('register/', register, name='register'),
     path('registration-success/', registration_success, name='registration_success'),

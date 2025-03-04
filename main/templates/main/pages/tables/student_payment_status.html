@@ -70,15 +70,36 @@
         text-decoration: none;
         cursor: pointer;
     }
+
+    /* Autocomplete dropdown styling */
+    .ui-autocomplete {
+        max-height: 200px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 5px 0;
+        z-index: 1001;
+    }
+
+    .ui-menu-item {
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+
+    .ui-menu-item:hover {
+        background-color: #f0f0f0;
+    }
 </style>
 
 <div class="content-wrapper">
     <div class="form-section">
         <h3>Student Payment Status</h3>
         <form method="get" action="{% url 'student_payment_status' %}">
-            <!-- Search by Name -->
+            <!-- Search by Name with Autocomplete -->
             <div class="form-group mb-3">
-                <input type="text" class="form-control" name="q" placeholder="Search by name" value="{{ query }}">
+                <input type="text" class="form-control" id="student-search" name="q" placeholder="Search by name" value="{{ query }}">
             </div>
 
             <!-- OR Separator -->
@@ -138,7 +159,7 @@
                                 <button class="btn btn-info btn-sm view-contact" 
                                         data-parents-name="{{ student.parents_name }}"
                                         data-parents-phone="{{ student.parents_phone_number }}">
-                                    View Contact
+                                    View Parent Contact
                                 </button>
                             </td>
                         </tr>
@@ -175,7 +196,12 @@
     </div>
 </div>
 
-<!-- JavaScript to handle the modal -->
+<!-- Include jQuery and jQuery UI for autocomplete -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+
+<!-- JavaScript to handle the modal and autocomplete -->
 <script>
     // Get the modal
     const modal = document.getElementById("contactModal");
@@ -213,5 +239,29 @@
             modal.style.display = "none";
         }
     };
+
+    // Autocomplete for student search
+    $(function() {
+        $("#student-search").autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    url: "{% url 'student_autocomplete' %}",  // URL to fetch autocomplete data
+                    dataType: "json",
+                    data: {
+                        term: request.term  // Pass the search term
+                    },
+                    success: function(data) {
+                        response(data);  // Return matching students
+                    }
+                });
+            },
+            minLength: 2,  // Minimum characters to trigger autocomplete
+            select: function(event, ui) {
+                // Set the selected student's name in the search input
+                $("#student-search").val(ui.item.value);
+                return false;
+            }
+        });
+    });
 </script>
 {% endblock content %}

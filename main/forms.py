@@ -115,7 +115,7 @@ from .models import Budget
 class BudgetForm(forms.ModelForm):
     class Meta:
         model = Budget
-        fields = ['category', 'allocated_amount', 'spent_amount', 'description']
+        fields = ['category', 'allocated_amount', 'spent_amount', 'description','updated_by']
 
 from django import forms
 

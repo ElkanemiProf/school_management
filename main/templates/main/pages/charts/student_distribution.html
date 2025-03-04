@@ -4,40 +4,69 @@
 {% block content %}
 <style>
     body {
-        background-color: #d0e6f1; /* Light blue background */
+        background-color: #f8f9fa; /* Light gray background */
+        font-family: 'Arial', sans-serif;
     }
 
     .visualization-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
+        padding: 20px;
     }
 
     .charts-section {
-        width: 100%; /* Full width for the charts container */
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px; /* Add space between charts */
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px; /* Space between charts */
     }
 
     .chart-card {
-        flex: 1; /* Each chart will take equal space */
-        min-width: 300px; /* Minimum width for each chart */
+        background: #ffffff; /* White background for cards */
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .chart-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .chart-card h4 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #333333;
     }
 
     .dropdown-container {
-        margin-bottom: 20px;
+        margin-bottom: 30px;
+        text-align: center;
     }
 
     .dropdown-container label {
-        font-weight: bold;
+        font-weight: 600;
         margin-right: 10px;
+        color: #555555;
     }
 
     .dropdown-container select {
-        padding: 5px;
+        padding: 8px 12px;
         border-radius: 5px;
-        border: 1px solid #ccc;
+        border: 1px solid #cccccc;
+        background-color: #ffffff;
+        font-size: 14px;
+        color: #333333;
+        cursor: pointer;
+    }
+
+    .dropdown-container select:hover {
+        border-color: #999999;
+    }
+
+    .dropdown-container select:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
     }
 </style>
 
@@ -58,32 +87,32 @@
             <div class="charts-section">
                 <!-- Stacked Bar Chart -->
                 <div class="chart-card">
-                    <div class="card">
-                        <div class="card-body">
-                            <h4 class="card-title">Students Distribution by Gender and Class</h4>
-                            <canvas id="stackedBarChart"></canvas>
-                        </div>
-                    </div>
+                    <h4>Students Distribution by Gender and Class</h4>
+                    <canvas id="stackedBarChart"></canvas>
                 </div>
 
                 <!-- Pie Chart - Gender Distribution -->
                 <div class="chart-card">
-                    <div class="card">
-                        <div class="card-body">
-                            <h4 class="card-title">Gender Distribution</h4>
-                            <canvas id="genderDistributionChart"></canvas>
-                        </div>
-                    </div>
+                    <h4>Gender Distribution</h4>
+                    <canvas id="genderDistributionChart"></canvas>
                 </div>
 
                 <!-- Doughnut Chart - Day Students vs Boarders -->
                 <div class="chart-card">
-                    <div class="card">
-                        <div class="card-body">
-                            <h4 class="card-title">Day Students vs Boarders</h4>
-                            <canvas id="residencyDistributionChart"></canvas>
-                        </div>
-                    </div>
+                    <h4>Day Students vs Boarders</h4>
+                    <canvas id="residencyDistributionChart"></canvas>
+                </div>
+
+                <!-- Pie Chart - Male Day Students vs Male Boarders -->
+                <div class="chart-card">
+                    <h4>Male Students: Day vs Boarders</h4>
+                    <canvas id="maleResidencyChart"></canvas>
+                </div>
+
+                <!-- Pie Chart - Female Day Students vs Female Boarders -->
+                <div class="chart-card">
+                    <h4>Female Students: Day vs Boarders</h4>
+                    <canvas id="femaleResidencyChart"></canvas>
                 </div>
             </div>
         </div>
@@ -94,6 +123,12 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+    // Function to calculate percentages
+    function calculatePercentages(counts) {
+        const total = counts.reduce((sum, count) => sum + count, 0);
+        return counts.map(count => ((count / total) * 100).toFixed(2));
+    }
+
     // Data for all classes (passed from the backend)
     const classData = {
         {% for class in class_names %}
@@ -101,17 +136,27 @@
                 male_students: {{ male_student_counts|safe }}[{{ forloop.counter0 }}],
                 female_students: {{ female_student_counts|safe }}[{{ forloop.counter0 }}],
                 gender_counts: [{{ gender_counts|safe }}[{{ forloop.counter0 }}][0], {{ gender_counts|safe }}[{{ forloop.counter0 }}][1]],
-                residency_counts: [{{ residency_counts|safe }}[{{ forloop.counter0 }}][0], {{ residency_counts|safe }}[{{ forloop.counter0 }}][1]]
+                residency_counts: [{{ residency_counts|safe }}[{{ forloop.counter0 }}][0], {{ residency_counts|safe }}[{{ forloop.counter0 }}][1]],
+                male_day_students: {{ male_day_students|safe }}[{{ forloop.counter0 }}],
+                male_boarders: {{ male_boarders|safe }}[{{ forloop.counter0 }}],
+                female_day_students: {{ female_day_students|safe }}[{{ forloop.counter0 }}],
+                female_boarders: {{ female_boarders|safe }}[{{ forloop.counter0 }}]
             },
         {% endfor %}
     };
 
-    let stackedBarChart, genderDistributionChart, residencyDistributionChart;
+    let stackedBarChart, genderDistributionChart, residencyDistributionChart, maleResidencyChart, femaleResidencyChart;
 
     function initializeCharts(selectedClass) {
         const data = classData[selectedClass];
 
-        // Stacked Bar Chart
+        // Calculate percentages
+        const genderPercentages = calculatePercentages(data.gender_counts);
+        const residencyPercentages = calculatePercentages(data.residency_counts);
+        const maleResidencyPercentages = calculatePercentages([data.male_day_students, data.male_boarders]);
+        const femaleResidencyPercentages = calculatePercentages([data.female_day_students, data.female_boarders]);
+
+        // Stacked Bar Chart (unchanged, uses actual numbers)
         const ctx1 = document.getElementById('stackedBarChart').getContext('2d');
         if (stackedBarChart) stackedBarChart.destroy();
         stackedBarChart = new Chart(ctx1, {
@@ -141,7 +186,7 @@
             }
         });
 
-        // Pie Chart - Gender Distribution
+        // Pie Chart - Gender Distribution (percentages)
         const ctx2 = document.getElementById('genderDistributionChart').getContext('2d');
         if (genderDistributionChart) genderDistributionChart.destroy();
         genderDistributionChart = new Chart(ctx2, {
@@ -149,16 +194,26 @@
             data: {
                 labels: ['Male', 'Female'],
                 datasets: [{
-                    data: data.gender_counts,
+                    data: genderPercentages,
                     backgroundColor: ['rgba(54, 162, 235, 0.2)', 'rgba(255, 99, 132, 0.2)'],
                     borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)'],
                     borderWidth: 1
                 }]
             },
-            options: { responsive: true, plugins: { legend: { position: 'top' } } }
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => `${context.label}: ${context.raw}%`
+                        }
+                    }
+                }
+            }
         });
 
-        // Doughnut Chart - Day Students vs Boarders
+        // Doughnut Chart - Day Students vs Boarders (percentages)
         const ctx3 = document.getElementById('residencyDistributionChart').getContext('2d');
         if (residencyDistributionChart) residencyDistributionChart.destroy();
         residencyDistributionChart = new Chart(ctx3, {
@@ -166,13 +221,77 @@
             data: {
                 labels: ['Day Students', 'Boarders'],
                 datasets: [{
-                    data: data.residency_counts,
+                    data: residencyPercentages,
                     backgroundColor: ['rgba(255, 206, 86, 0.2)', 'rgba(75, 192, 192, 0.2)'],
                     borderColor: ['rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)'],
                     borderWidth: 1
                 }]
             },
-            options: { responsive: true, plugins: { legend: { position: 'top' } } }
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => `${context.label}: ${context.raw}%`
+                        }
+                    }
+                }
+            }
+        });
+
+        // Pie Chart - Male Day Students vs Male Boarders (percentages)
+        const ctx4 = document.getElementById('maleResidencyChart').getContext('2d');
+        if (maleResidencyChart) maleResidencyChart.destroy();
+        maleResidencyChart = new Chart(ctx4, {
+            type: 'pie',
+            data: {
+                labels: ['Day Students', 'Boarders'],
+                datasets: [{
+                    data: maleResidencyPercentages,
+                    backgroundColor: ['rgba(54, 162, 235, 0.2)', 'rgba(75, 192, 192, 0.2)'],
+                    borderColor: ['rgba(54, 162, 235, 1)', 'rgba(75, 192, 192, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => `${context.label}: ${context.raw}%`
+                        }
+                    }
+                }
+            }
+        });
+
+        // Pie Chart - Female Day Students vs Female Boarders (percentages)
+        const ctx5 = document.getElementById('femaleResidencyChart').getContext('2d');
+        if (femaleResidencyChart) femaleResidencyChart.destroy();
+        femaleResidencyChart = new Chart(ctx5, {
+            type: 'pie',
+            data: {
+                labels: ['Day Students', 'Boarders'],
+                datasets: [{
+                    data: femaleResidencyPercentages,
+                    backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(255, 159, 64, 0.2)'],
+                    borderColor: ['rgba(255, 99, 132, 1)', 'rgba(255, 159, 64, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => `${context.label}: ${context.raw}%`
+                        }
+                    }
+                }
+            }
         });
     }
 

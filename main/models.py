@@ -273,14 +273,16 @@ class AuditTrail(models.Model):
     def __str__(self):
         return f"{self.action} by {self.performed_by} on {self.date.strftime('%Y-%m-%d %H:%M:%S')}"
 
+from django.db import models
+
 class Budget(models.Model):
     category = models.CharField(max_length=100)
     allocated_amount = models.DecimalField(max_digits=10, decimal_places=2)
     spent_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     remaining_amount = models.DecimalField(max_digits=10, decimal_places=2, editable=False)
     description = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)  # Automatically set when the budget is created
-
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_by = models.CharField(max_length=100, blank=True, null=True)  # New field
 
     def save(self, *args, **kwargs):
         self.remaining_amount = self.allocated_amount - self.spent_amount
@@ -288,6 +290,15 @@ class Budget(models.Model):
 
     def __str__(self):
         return f"{self.category} - Allocated: {self.allocated_amount} - Remaining: {self.remaining_amount}"
+class BudgetLog(models.Model):
+    budget = models.ForeignKey(Budget, on_delete=models.CASCADE, related_name='logs')
+    user = models.CharField(max_length=100, blank=True, null=True)
+    action = models.CharField(max_length=100)  # Action performed (e.g., "Created", "Updated", "Deleted")
+    details = models.TextField(blank=True)  # Details of the change
+    timestamp = models.DateTimeField(auto_now_add=True)  # Time of the change
+
+    def __str__(self):
+        return f"{self.budget.category} - {self.action} by {self.user} at {self.timestamp}"
 
 class Staff(models.Model):
     ROLE_CHOICES = [

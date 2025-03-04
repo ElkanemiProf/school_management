@@ -524,6 +524,10 @@ def student_distribution_view(request):
     female_student_counts = []
     gender_counts = []
     residency_counts = []
+    male_day_students = []
+    male_boarders = []
+    female_day_students = []
+    female_boarders = []
 
     for level, section in SchoolClass.objects.values_list('level', 'section'):
         # Filter students by class
@@ -533,11 +537,21 @@ def student_distribution_view(request):
         day_students = Student.objects.filter(school_class__level=level, school_class__section=section, residency_status='day_student').count()
         boarders = Student.objects.filter(school_class__level=level, school_class__section=section, residency_status='boarder').count()
 
+        # Filter male and female students by residency status
+        male_day = Student.objects.filter(school_class__level=level, school_class__section=section, gender='male', residency_status='day_student').count()
+        male_boarder = Student.objects.filter(school_class__level=level, school_class__section=section, gender='male', residency_status='boarder').count()
+        female_day = Student.objects.filter(school_class__level=level, school_class__section=section, gender='female', residency_status='day_student').count()
+        female_boarder = Student.objects.filter(school_class__level=level, school_class__section=section, gender='female', residency_status='boarder').count()
+
         # Append values to lists
         male_student_counts.append(male_students)
         female_student_counts.append(female_students)
         gender_counts.append([male_students, female_students])  # Store for the gender pie chart
         residency_counts.append([day_students, boarders])  # Store for the residency doughnut chart
+        male_day_students.append(male_day)
+        male_boarders.append(male_boarder)
+        female_day_students.append(female_day)
+        female_boarders.append(female_boarder)
 
     context = {
         'class_names': class_names,
@@ -545,6 +559,10 @@ def student_distribution_view(request):
         'female_student_counts': female_student_counts,
         'gender_counts': gender_counts,  # Now class-specific
         'residency_counts': residency_counts,  # Now class-specific
+        'male_day_students': male_day_students,  # Male day students
+        'male_boarders': male_boarders,  # Male boarders
+        'female_day_students': female_day_students,  # Female day students
+        'female_boarders': female_boarders,  # Female boarders
     }
 
     return render(request, 'main/pages/charts/student_distribution.html', context)
@@ -998,37 +1016,66 @@ def student_payment_status_view(request):
 def select_level_view(request):
     return render(request, 'main/pages/tables/filter_subjects.html')
 
-def budget_list(request):
-    # Fetch all budget data
-    budgets = Budget.objects.all()
 
-    # Prepare data for Chart.js
+from functools import wraps
+
+
+
+def budget_list(request):
+    budgets = Budget.objects.all()
+    budget_logs = BudgetLog.objects.all().order_by('-timestamp')  # Fetch all logs
     categories = [budget.category for budget in budgets]
     allocated_amounts = [float(budget.allocated_amount) for budget in budgets]
     spent_amounts = [float(budget.spent_amount) for budget in budgets]
 
-    # Pass the data to the template
     context = {
         'budgets': budgets,
         'categories': categories,
         'allocated_amounts': allocated_amounts,
         'spent_amounts': spent_amounts,
+        'budget_logs': budget_logs,  # Pass logs to the template
     }
     return render(request, 'main/pages/tables/budget_list.html', context)
+
+def login_required_with_budget_id(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        return login_required(view_func)(request, *args, **kwargs)
+    return _wrapped_view
+
+@login_required_with_budget_id
+def view_budget_logs(request, budget_id):  # Accept budget_id as a positional argument
+    # Fetch logs for the specific budget, ordered by timestamp (newest first)
+    budget_logs = BudgetLog.objects.filter(budget_id=budget_id).order_by('-timestamp')
+    return render(request, 'main/pages/tables/budget_logs.html', {'budget_logs': budget_logs})
+
+from django.contrib import messages
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import Budget, BudgetLog
+from .forms import BudgetForm
 
 @login_required
 def create_budget(request):
     # Check if the user is not a principal
     if request.user.userprofile.role != 'principal':
-        # Redirect to your custom 404 page
         return render(request, 'main/pages/samples/error-404.html')
 
     # Continue with the logic for creating a budget if the user is a principal
     if request.method == 'POST':
         form = BudgetForm(request.POST)
         if form.is_valid():
-            form.save()
+            budget = form.save()  # Save the budget first
             messages.success(request, 'Budget created successfully.')
+
+            # Log the creation action
+            BudgetLog.objects.create(
+                budget=budget,
+                user=budget.updated_by,  # Use the updated_by field
+                action="Created",
+                details=f"Budget for {budget.category} created. Allocated: {budget.allocated_amount}, Spent: {budget.spent_amount}, Remaining: {budget.remaining_amount}"
+            )
+
             return redirect('budget_list')
     else:
         form = BudgetForm()
@@ -1039,7 +1086,6 @@ def create_budget(request):
 def update_budget(request, pk):
     # Check if the user is not a principal
     if request.user.userprofile.role != 'principal':
-        # Redirect to your custom 404 page
         return render(request, 'main/pages/samples/error-404.html')
 
     # Get the budget object to be updated
@@ -1049,13 +1095,31 @@ def update_budget(request, pk):
     if request.method == 'POST':
         form = BudgetForm(request.POST, instance=budget)
         if form.is_valid():
-            form.save()
+            budget = form.save()  # Save the budget
             messages.success(request, 'Budget updated successfully.')
+
+            # Log the update action
+            BudgetLog.objects.create(
+                budget=budget,
+                user=budget.updated_by,  # Use the updated_by field
+                action="Updated",
+                details=f"Budget for {budget.category} updated. Allocated: {budget.allocated_amount}, Spent: {budget.spent_amount}, Remaining: {budget.remaining_amount}"
+            )
+
             return redirect('budget_list')
     else:
         form = BudgetForm(instance=budget)
 
     return render(request, 'main/pages/forms/update_budget.html', {'form': form})
+from .models import BudgetLog
+
+@login_required
+def view_budget_logs(request):
+    # Fetch all budget logs, ordered by timestamp (newest first)
+    budget_logs = BudgetLog.objects.all().order_by('-timestamp')
+    return render(request, 'main/pages/tables/budget_logs.html', {'budget_logs': budget_logs})
+
+
 
 @login_required
 def delete_budget(request, pk):
@@ -1493,3 +1557,13 @@ def update_incident(request, id):
     
     # Pass the incident_report variable to the template
     return render(request, 'main/pages/forms/update_incident.html', {'incident': incident_report})
+
+def student_autocomplete(request):
+    term = request.GET.get('term', '')
+    students = Student.objects.filter(
+        Q(first_name__icontains=term) | Q(last_name__icontains=term)
+    ).values_list('first_name', 'last_name')
+
+    # Format the results as a list of strings (e.g., "John Doe")
+    results = [f"{first_name} {last_name}" for first_name, last_name in students]
+    return JsonResponse(results, safe=False)

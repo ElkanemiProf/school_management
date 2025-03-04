@@ -1,0 +1,61 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    body {
+        background-image: url("{% static 'assets/images/rss.jpeg' %}"); /* Replace with your image path */
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        height: 100vh;
+    }
+
+    .container {
+        background-color: rgba(255, 255, 255, 0.9); /* White background with slight transparency */
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        color: #333; /* Dark color for the heading */
+    }
+
+    .table {
+        background-color: rgba(255, 255, 255, 0.6); /* Less opaque table background */
+        backdrop-filter: blur(5px); /* Optional: Adds a slight blur behind the table */
+        border-radius: 10px;
+    }
+
+    th, td {
+        color: #000; /* Ensures the text is opaque and readable */
+    }
+</style>
+
+<div class="container mt-5">
+    <h2 class="mb-4">Budget Logs</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Action</th>
+                <th>User</th>
+                <th>Details</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in budget_logs %}
+            <tr>
+                <td>{{ log.action }}</td>
+                <td>{{ log.user }}</td>
+                <td>{{ log.details }}</td>
+                <td>{{ log.timestamp }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'budget_list' %}" class="btn btn-primary">Back to Budget List</a>
+</div>
+{% endblock %}
