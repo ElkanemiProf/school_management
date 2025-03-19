@@ -13,7 +13,7 @@
     <style>
         /* Set the background image */
         body {
-            background-image: url("{% static 'assets/images/logo3.jpg' %}");
+            background-image: url("{% static 'assets/images/bvci.png' %}");
             background-color: #C0C3B3; /* Set background color to #C0C3B3 */
             height: 100vh; /* Full viewport height */
             display: flex;
@@ -21,6 +21,8 @@
             align-items: center;
             margin: 0;
             padding: 0;
+            background-size: cover; /* Ensure the background image covers the entire screen */
+            background-position: center; /* Center the background image */
         }
 
         .auth-form-light {
@@ -129,7 +131,7 @@
                                     <button type="submit" class="btn btn-block btn-primary btn-lg fw-medium auth-form-btn">SIGN IN</button>
                                 </div>
                                 <div class="my-2 d-flex justify-content-between align-items-center">
-                                    <a href="#" class="auth-link text-black">Forgot password?</a>
+                                    
                                 </div>
                                 <div class="text-center mt-4 fw-light"> Don't have an account? 
                                     <a href="{% url 'register' %}" class="text-primary">Create</a>

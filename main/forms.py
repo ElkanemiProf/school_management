@@ -63,10 +63,14 @@ class StudentForm(forms.ModelForm):
 
 from django import forms
 from .models import Subject
+# forms.py
+from django import forms
+from .models import Subject, Teacher
+
 class SubjectForm(forms.ModelForm):
     teachers = forms.ModelMultipleChoiceField(
-        queryset=Teacher.objects.all(),
-        widget=forms.CheckboxSelectMultiple,  # Allows selecting multiple teachers
+        queryset=Teacher.objects.all(),  # Use all teachers in the database
+        widget=forms.CheckboxSelectMultiple,
         required=False
     )
 
@@ -74,19 +78,19 @@ class SubjectForm(forms.ModelForm):
         model = Subject
         fields = ['name', 'level', 'code', 'description', 'teachers']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Initialize the teachers field with the current subject's teachers
+        if self.instance.pk:
+            self.fields['teachers'].initial = self.instance.teachers.all()
+
     def save(self, commit=True):
-        # Save the subject instance
         subject = super().save(commit=False)
         if commit:
-            subject.save()  # Save the subject to the database
-
-            # Update the ManyToManyField for teachers
+            subject.save()
             if 'teachers' in self.cleaned_data:
-                subject.teachers.set(self.cleaned_data['teachers'])  # Use .set() on the ManyToManyField
-
-            # Save the many-to-many data
+                subject.teachers.set(self.cleaned_data['teachers'])
             self.save_m2m()
-
         return subject
 
 from django import forms

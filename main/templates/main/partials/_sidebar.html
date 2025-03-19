@@ -9,7 +9,7 @@
         <!-- Dashboard Link -->
         <li class="nav-item">
           <a href="{% url 'admissions_list' %}" class="nav-link">Admissions by Year</a>
-</li>
+        </li>
 
         <!-- Add a larger pipe as a separator -->
         <li class="nav-item nav-separator">|</li>
@@ -22,7 +22,6 @@
           <ul class="dropdown-menu" aria-labelledby="studentsDropdown">
             <li><a class="dropdown-item" href="{% url 'student_distribution' %}">Student Distribution</a></li>
             <li><a class="dropdown-item" href="{% url 'hoverable_school_classes' %}">Class Distributions</a></li>
-            
           </ul>
         </li>
 
@@ -78,7 +77,6 @@
           </a>
           <ul class="dropdown-menu" aria-labelledby="financeDropdown">
             <li><a class="dropdown-item" href="{% url 'create_budget' %}">Budget</a></li>
-            
           </ul>
         </li>
 
@@ -98,7 +96,33 @@
         </li>
       </ul>
 
-      <!-- Search form -->
+      <!-- Notification Icon -->
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-bell"></i>
+            <!-- Display unread notification count -->
+            <span class="badge bg-danger" id="notificationCount">
+              {{ unread_notifications_count }}
+            </span>
+          </a>
+          <!-- Notification Dropdown -->
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown" id="notificationList">
+            {% for notification in unread_notifications %}
+              <li>
+                <a class="dropdown-item" href="#">
+                  {{ notification.message }}
+                  <small class="text-muted">{{ notification.created_at|timesince }} ago</small>
+                </a>
+              </li>
+            {% empty %}
+              <li><a class="dropdown-item" href="#">No new notifications</a></li>
+            {% endfor %}
+          </ul>
+        </li>
+      </ul>
+
+      <!-- Logout Button -->
       <form class="d-flex" method="POST" action="{% url 'logout' %}">
         {% csrf_token %}
         <button class="btn btn-outline-danger" type="submit">Logout</button>
@@ -135,4 +159,17 @@
   .navbar-nav .dropdown-menu {
     margin-top: 0;
   }
+
+  /* Notification icon styling */
+  .fa-bell {
+    font-size: 1.2rem;
+  }
+
+  .badge {
+    font-size: 0.8rem;
+    margin-left: 5px;
+  }
 </style>
+
+<!-- Font Awesome for the bell icon -->
+<script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>

@@ -57,11 +57,16 @@ class Subject(models.Model):
     level = models.CharField(max_length=10, choices=LEVEL_CHOICES)  # Non-nullable now
     code = models.CharField(max_length=10, unique=True)
     description = models.TextField(blank=True)
-    teacher = models.ForeignKey('Teacher', on_delete=models.CASCADE, null=True, blank=True)
+    teachers = models.ManyToManyField('Teacher', blank=True, related_name="assigned_subjects")
+
+
+
+
+    class Meta:
+        unique_together = ('name', 'level')  # Enforce uniqueness on name and level
 
     def __str__(self):
         return f'{self.name} - {self.level}'
-
 class Student(models.Model):
     GENDER_CHOICES = [
         ('male', 'Male'),
@@ -144,14 +149,14 @@ class Parent(models.Model):
 
 class Teacher(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    subject_taught = models.ManyToManyField(Subject, related_name='teachers')
+    subject_taught = models.ManyToManyField(Subject, related_name='assigned_teachers')
+
     phone_number = models.CharField(max_length=15)
     ippis_number = models.CharField(max_length=20)
     classes_taught = models.ManyToManyField('SchoolClass', related_name='teachers')
 
     def __str__(self):
-        return self.user.username
-
+        return f"{self.user.first_name} {self.user.last_name}"
 from django.db import models
 
 class MaintenanceRequest(models.Model):

@@ -1,4 +1,5 @@
 {% extends 'main/base.html' %}
+{% load static %}
 
 {% block title %}Dashboard - Overview{% endblock %}
 
@@ -19,30 +20,38 @@
 
   <!-- Dashboard Cards for Overview -->
   <div class="row dashboard-overview">
+    <!-- Card 1: Percentage of Paid School Fees -->
     <div class="col-md-3 mb-4">
-      <div class="card bg-primary text-white text-center p-4">
+      <div class="card text-center p-4" style="background-color: rgba(54, 162, 235, 0.5); color: white;">
         <h6 class="card-title">Percentage of Paid School Fees</h6>
-        <h3>32.53%</h3>
+        <h3>32.53%</h3>  <!-- Hardcoded value -->
       </div>
     </div>
+
+    <!-- Card 2: Total Students -->
     <div class="col-md-3 mb-4">
-      <div class="card bg-success text-white text-center p-4">
+      <div class="card text-center p-4" style="background-color: rgba(75, 192, 192, 0.5); color: white;">
         <h6 class="card-title">Total Students</h6>
         <h3>{{ total_students }}</h3>
       </div>
     </div>
+
+    <!-- Card 3: Total Teachers -->
     <div class="col-md-3 mb-4">
-      <div class="card bg-info text-white text-center p-4">
+      <div class="card text-center p-4" style="background-color: rgba(255, 99, 132, 0.5); color: white;">
         <h6 class="card-title">Total Teachers</h6>
         <h3>{{ total_teachers }}</h3>
       </div>
     </div>
-    <div class="col-md-3 mb-4">
-      <div class="card bg-success text-white text-center p-4">
-        <h6 class="card-title">2025/2026 Admissions</h6>
-        <h3>{{ current_year_admissions }}</h3>
-      </div>
-    </div>
+
+    <!-- Card 4: 2025/2026 Admissions -->
+    <!-- Card 4: Total JS1 Students -->
+<div class="col-md-3 mb-4">
+  <div class="card text-center p-4" style="background-color: rgba(255, 206, 86, 0.5); color: white;">
+    <h6 class="card-title">Admission 2024/2025</h6>
+    <h3>{{ total_js1_students }}</h3>
+  </div>
+</div>
   </div>
 
   <!-- Budget Overview and Student Distribution side by side -->
@@ -60,8 +69,6 @@
       </div>
     </div>
   </div>
-
-  
 
   <!-- Admissions Line Chart -->
   <div class="row mt-4">
@@ -198,16 +205,22 @@
   setInterval(updateTime, 1000);
 </script>
 
-<!-- Gradient Animation -->
+<!-- Custom CSS for Cards -->
 <style>
-  .animated-gradient {
-    animation: animateBg 2s linear infinite;
-    background-image: linear-gradient(90deg, #0080ff, #388363, #fcf8d6, #0080ff, #388363);
-    background-size: 400% 100%;
+  .card {
+    border: none; /* Remove card border */
+    border-radius: 10px; /* Add rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
   }
-  @keyframes animateBg {
-    0% { background-position: 0% 0%; }
-    100% { background-position: 100% 0%; }
+
+  .card-title {
+    font-size: 1.1rem; /* Adjust title font size */
+    font-weight: bold; /* Make title bold */
+  }
+
+  .card h3 {
+    font-size: 2rem; /* Adjust value font size */
+    margin-top: 10px; /* Add spacing between title and value */
   }
 </style>
 

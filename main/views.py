@@ -91,8 +91,33 @@ def load_existing_timetable(existing_timetable):
 from datetime import datetime
 from django.utils import timezone
 
+from django.shortcuts import render, redirect
+from django.utils import timezone
+from django.db.models import Count
+from django.db.models.functions import ExtractYear
+from datetime import datetime, timedelta
+from django.contrib.auth.decorators import login_required, user_passes_test
+from .models import (
+    Student, Teacher, Budget, SchoolClass, Admissions, IncidentReport,
+    Event, MaintenanceRequest, Notification
+)
+
 @login_required
 @user_passes_test(lambda u: u.userprofile.role in ['teacher', 'principal'])
+
+
+def get_greeting():
+    """Returns a greeting based on the current time of day."""
+    current_time = datetime.now().time()
+    if 5 <= current_time.hour < 12:
+        return "Good morning"
+    elif 12 <= current_time.hour < 18:
+        return "Good afternoon"
+    else:
+        return "Good evening"
+
+
+@login_required
 def dashboard_view(request):
     user = request.user
     try:
@@ -101,7 +126,11 @@ def dashboard_view(request):
     except AttributeError:
         return redirect('login')
 
-    greeting = f"{get_greeting()}, {user.first_name} {user.last_name} ({user_role})"
+    # Check user role
+    if user_role not in ['teacher', 'principal']:
+        return render(request, 'main/access_denied.html', {'message': 'You do not have permission to access this page.'})
+
+    
 
     # Counts
     total_students = Student.objects.count()
@@ -117,16 +146,13 @@ def dashboard_view(request):
     allocated_amounts = [float(budget.allocated_amount) for budget in budgets]
     spent_amounts = [float(budget.spent_amount) for budget in budgets]
 
-    # Admissions data
-    current_year = datetime.now().year
-
-    # Fetch current year admissions for JS1 students
+    # Fetch total number of students in JS1
     js1_classes = SchoolClass.objects.filter(level='JS1')  # Get all JS1 classes
-    current_year_admissions = 0
+    total_js1_students = 0
 
     for js1_class in js1_classes:
-        # Count students admitted in the current year for each JS1 class
-        current_year_admissions += js1_class.students.filter(admission_date__year=current_year).count()
+        # Count all students in each JS1 class
+        total_js1_students += js1_class.students.count()
 
     # Fetch admissions data for all years
     admissions_per_year = Admissions.objects.filter(admission_date__isnull=False) \
@@ -143,7 +169,7 @@ def dashboard_view(request):
 
     # Debug: Print the query results
     print("Admissions Data:", admissions_data)
-    print("Current Year Admissions (JS1):", current_year_admissions)
+    print("Total JS1 Students:", total_js1_students)
 
     # Pending incidents
     pending_incidents = IncidentReport.objects.filter(resolved=False)
@@ -154,18 +180,26 @@ def dashboard_view(request):
     new_events = Event.objects.filter(created_at__gte=timezone.now() - timedelta(days=30))
     new_maintenance_requests = MaintenanceRequest.objects.filter(date_requested__gte=timezone.now() - timedelta(days=30))
 
+    # Fetch unread notifications for the logged-in user
+    if request.user.is_authenticated:
+        unread_notifications = Notification.objects.filter(user=request.user, is_read=False).order_by('-created_at')
+        unread_notifications_count = unread_notifications.count()
+    else:
+        unread_notifications = []
+        unread_notifications_count = 0
+
     context = {
-        'greeting': greeting,
+        
         'total_students': total_students,
         'total_teachers': total_teachers,
         'day_students_count': day_students_count,
         'boarders_count': boarders_count,
         'male_students_count': male_students_count,
         'female_students_count': female_students_count,
-        'current_year_admissions': current_year_admissions,  # Add this to the context
-        'admissions_data': admissions_data,  # Add this to the context
-        'admission_years': [entry['year'] for entry in admissions_data],  # For the chart
-        'admission_counts': [entry['count'] for entry in admissions_data],  # For the chart
+        'total_js1_students': total_js1_students,  # Updated variable name
+        'admissions_data': admissions_data,
+        'admission_years': [entry['year'] for entry in admissions_data],
+        'admission_counts': [entry['count'] for entry in admissions_data],
         'categories': categories,
         'allocated_amounts': allocated_amounts,
         'spent_amounts': spent_amounts,
@@ -177,9 +211,11 @@ def dashboard_view(request):
         'new_budgets': new_budgets,
         'new_events': new_events,
         'new_maintenance_requests': new_maintenance_requests,
+        'unread_notifications': unread_notifications,
+        'unread_notifications_count': unread_notifications_count,
+        'total_notifications_count': unread_notifications_count,
     }
     return render(request, 'main/index.html', context)
-# ------------------------ Student Management ------------------------
 
 @login_required
 def view_students(request, class_id):
@@ -253,22 +289,19 @@ def subject_list_view(request):
     subjects = Subject.objects.filter(level=level) if level else Subject.objects.all()
     return render(request, 'main/pages/tables/subject_list.html', {'subjects': subjects, 'level': level})
 
-@login_required
 def modify_subject_view(request, subject_id):
     subject = get_object_or_404(Subject, id=subject_id)
     if request.method == 'POST':
         form = SubjectForm(request.POST, instance=subject)
         if form.is_valid():
             form.save()
-            return redirect('subject_list')
+            return redirect('success_url')  # Redirect to a success page
     else:
         form = SubjectForm(instance=subject)
-    context = {
-        'form': form,
-        'subject': subject,
-        'subject_id': subject_id,
-    }
-    return render(request, 'main/pages/forms/modify_subject.html', context)
+    
+      
+    return render(request, 'main/pages/forms/modify_subject.html', {'form': form, 'subject': subject})
+    
 
 @login_required
 def delete_subject_view(request, subject_id):
@@ -483,9 +516,14 @@ def export_class_list(request, class_id):
         df.to_excel(writer, index=False, sheet_name='Students')
     return response
 
+
 @login_required
 def teacher_list_view(request):
-    teachers = Teacher.objects.all().prefetch_related('subject_taught', 'classes_taught')
+    # Fetch all teachers, sort them alphabetically by their user's first and last name
+    teachers = Teacher.objects.all().order_by('user__first_name', 'user__last_name').prefetch_related('user', 'subject_taught', 'classes_taught')
+
+    # Fetch all classes
+    all_classes = SchoolClass.objects.all()
 
     # Count total number of teachers
     total_teachers = teachers.count()
@@ -493,15 +531,19 @@ def teacher_list_view(request):
     # Corrected Query for Teachers Per Subject
     subjects_with_teachers = {}
     for subject in Subject.objects.all():
-        subject_teacher_count = teachers.filter(subject_taught=subject).count()
+        subject_teacher_count = 0
+        for teacher in teachers:
+            if subject in teacher.subject_taught.all():
+                subject_teacher_count += 1
         subjects_with_teachers[subject.name] = {
             'count': subject_teacher_count,
-            'level': subject.level
+            'level': subject.level,
+            'id': subject.id
         }
 
     # Count teachers per level (Junior & Senior)
-    junior_teachers = teachers.filter(subject_taught__level='Junior').distinct().count()
-    senior_teachers = teachers.filter(subject_taught__level='Senior').distinct().count()
+    junior_teachers = Teacher.objects.filter(subject_taught__level='Junior').distinct().count()
+    senior_teachers = Teacher.objects.filter(subject_taught__level='Senior').distinct().count()
 
     context = {
         'teachers': teachers,
@@ -509,10 +551,61 @@ def teacher_list_view(request):
         'subjects_with_teachers': subjects_with_teachers,
         'junior_teachers': junior_teachers,
         'senior_teachers': senior_teachers,
+        'all_classes': all_classes,  # Pass all classes to the template
     }
 
     return render(request, 'main/pages/tables/teacher_list.html', context)
 
+import logging
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from .models import Teacher, SchoolClass
+
+logger = logging.getLogger(__name__)
+
+@csrf_exempt
+@require_POST
+def update_teacher_class(request, teacher_id, class_id):
+    try:
+        # Log the incoming request data
+        logger.info(f"Received request to update teacher {teacher_id} with class {class_id}")
+
+        # Validate teacher_id
+        teacher = Teacher.objects.get(id=teacher_id)
+
+        # Validate class_id
+        if not class_id:
+            logger.error("Class ID is missing in the request.")
+            return JsonResponse({'status': 'error', 'message': 'Class ID is required'}, status=400)
+
+        # Ensure class_id is an integer
+        try:
+            class_id = int(class_id)
+        except ValueError:
+            logger.error(f"Invalid class_id: {class_id}")
+            return JsonResponse({'status': 'error', 'message': 'Invalid class ID'}, status=400)
+
+        # Fetch the new class
+        new_class = SchoolClass.objects.get(id=class_id)
+
+        # Remove all existing classes taught by the teacher
+        teacher.classes_taught.clear()
+
+        # Assign the new class to the teacher
+        teacher.classes_taught.add(new_class)
+        teacher.save()
+
+        return JsonResponse({'status': 'success'})
+    except Teacher.DoesNotExist:
+        logger.error(f"Teacher with id {teacher_id} does not exist.")
+        return JsonResponse({'status': 'error', 'message': 'Teacher not found'}, status=404)
+    except SchoolClass.DoesNotExist:
+        logger.error(f"Class with id {class_id} does not exist.")
+        return JsonResponse({'status': 'error', 'message': 'Class not found'}, status=404)
+    except Exception as e:
+        logger.error(f"Error updating teacher class: {str(e)}")
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 @login_required
 def student_distribution_view(request):
     # Fetch all class names
@@ -1455,9 +1548,33 @@ def admissions_by_year(request, year):
     }
     return render(request, 'main/pages/admissions/admissions_by_year.html', context)
 
+from django.http import JsonResponse
+from .models import Notification
+
 def mark_notifications_as_read(request):
-    Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
-    return redirect('dashboard')  # Redirect to the dashboard after marking as read
+    if request.user.is_authenticated:
+        # Mark all unread notifications as read
+        Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+        return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error', 'message': 'User not authenticated'})
+
+
+
+
+
+from django.shortcuts import render
+from .models import Notification
+
+def dashboard(request):
+    if request.user.is_authenticated:
+        # Fetch unread notifications for the logged-in user
+        unread_notifications = Notification.objects.filter(user=request.user, is_read=False).order_by('-created_at')
+    else:
+        unread_notifications = []
+
+    return render(request, 'dashboard.html', {
+        'unread_notifications': unread_notifications,
+    })
 
 
 def update_teachers_ajax(request, subject_id):

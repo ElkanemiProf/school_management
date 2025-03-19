@@ -41,6 +41,7 @@ urlpatterns = [
     path('subjects/delete/<int:subject_id>/', delete_subject_view, name='delete_subject'),
     path('select_level/', views.select_level_view, name='select_level'),
     path('teachers/', teacher_list_view, name='teacher_list'),
+    path('update-teacher-class/<int:teacher_id>/<int:class_id>/', views.update_teacher_class, name='update_teacher_class'),
     path('student-distribution/', student_distribution_view, name='student_distribution'),
 
     path('report-incident/', report_incident, name='report_incident'),
@@ -106,7 +107,7 @@ urlpatterns = [
     path('admissions/', views.admissions_list, name='admissions_list'),  # List of years
     path('admissions/<int:year>/', views.admissions_by_year, name='admissions_by_year'),  # Admissions by year
 
-    path('notifications/mark-as-read/', views.mark_notifications_as_read, name='mark_notifications_as_read'),
+     path('mark-notifications-as-read/', views.mark_notifications_as_read, name='mark_notifications_as_read'),
 
     path('get-teacher-details/', get_teacher_details, name='get_teacher_details'),
     path('school_classes/', hoverable_school_classes_view, name='hoverable_school_classes'),

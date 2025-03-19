@@ -4,6 +4,9 @@
 {% block title %}Teachers{% endblock %}
 
 {% block content %}
+<!-- Add the CSRF token in a meta tag -->
+<meta name="csrf-token" content="{{ csrf_token }}">
+
 <style>
     body {
         background-color: #F0F4F8;
@@ -56,6 +59,7 @@
         border-radius: 6px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         transition: transform 0.2s, box-shadow 0.2s;
+        cursor: pointer;
     }
 
     .subject-card:hover {
@@ -109,6 +113,43 @@
     .teacher-table tr:hover {
         background-color: #f1f1f1;
     }
+
+    .class-dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .class-dropdown-toggle {
+        cursor: pointer;
+        margin-left: 5px;
+    }
+
+    .class-dropdown-menu {
+        display: none;
+        position: absolute;
+        background-color: white;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 4px;
+        z-index: 1;
+        padding: 10px;
+        min-width: 150px;
+    }
+
+    .class-dropdown-menu a {
+        display: block;
+        padding: 5px 10px;
+        color: #333;
+        text-decoration: none;
+    }
+
+    .class-dropdown-menu a:hover {
+        background-color: #f1f1f1;
+    }
+
+     /* Styles for the search feature */
+    .search-container {
+        margin-bottom: 15px;
+    }
 </style>
 
 <div class="container">
@@ -120,11 +161,11 @@
             <p><strong>Total Teachers:</strong> {{ total_teachers }}</p>
             <p><strong>Junior Level Teachers:</strong> {{ junior_teachers }}</p>
             <p><strong>Senior Level Teachers:</strong> {{ senior_teachers }}</p>
-            
+
             <h4 class="mt-4">Teachers Per Subject</h4>
             <div class="teacher-subjects">
                 {% for subject_name, details in subjects_with_teachers.items %}
-                <div class="subject-card">
+                <div class="subject-card" data-subject-id="{{ details.id }}" data-subject-name="{{ subject_name }}">
                     <h5>{{ subject_name }} ({{ details.level }})</h5>
                     <p>{{ details.count }} Teachers</p>
                 </div>
@@ -134,8 +175,14 @@
 
         <!-- Table with teacher details -->
         <div class="teacher-table">
-            <h2>Teachers</h2>
-            <table>
+            <h2 id="teacher-table-heading">Teachers</h2>
+
+            <!-- Search Input -->
+            <div class="search-container">
+                <input type="text" id="teacher-search" placeholder="Search for a teacher...">
+            </div>
+
+            <table id="teacher-table">
                 <thead>
                     <tr>
                         <th>Teacher Name</th>
@@ -145,7 +192,8 @@
                 </thead>
                 <tbody>
                     {% for teacher in teachers %}
-                    <tr>
+                    <tr data-subjects="{% for subject in teacher.subject_taught.all %}{{ subject.id }} {% endfor %}"
+                        data-teacher-name="{{ teacher.user.first_name }} {{ teacher.user.last_name }}">
                         <td>{{ teacher.user.first_name }} {{ teacher.user.last_name }}</td>
                         <td>
                             {% for subject in teacher.subject_taught.all %}
@@ -154,14 +202,165 @@
                         </td>
                         <td>
                             {% for school_class in teacher.classes_taught.all %}
-                                {{ school_class.level }}{{ school_class.section }}<br>
+                                <div class="class-dropdown">
+                                    {{ school_class.level }}{{ school_class.section }}
+                                    <span class="class-dropdown-toggle">▼</span>
+                                    <div class="class-dropdown-menu">
+                                        {% for class in all_classes %}
+                                        <a href="#" data-class-id="{{ class.id }}"
+                                            data-teacher-id="{{ teacher.id }}">
+                                            {{ class.level }}{{ class.section }}
+                                        </a>
+                                        {% endfor %}
+                                    </div>
+                                </div><br>
                             {% endfor %}
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
+    </div>
 </div>
+
+<script>
+    // Fetch the CSRF token from the meta tag
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    // Function to filter table based on subject ID
+    function filterTable(subjectId, subjectName) {
+        document.querySelectorAll('#teacher-table tbody tr').forEach(row => {
+            const subjects = row.getAttribute('data-subjects').trim().split(' ');
+            if (subjects.includes(subjectId)) {
+                row.style.display = ''; // Show the row
+            } else {
+                row.style.display = 'none'; // Hide the row
+            }
+        });
+
+        // Update the table heading
+        const headingElement = document.getElementById('teacher-table-heading');
+        headingElement.textContent = `${subjectName} Teachers`;
+
+        localStorage.setItem('selectedSubjectId', subjectId); // Persist SubjectId
+        localStorage.setItem('selectedSubjectName', subjectName)
+    }
+
+    // Load Previously Selected Subject on page reload
+    function loadPreviousSubject() {
+        const selectedSubjectId = localStorage.getItem('selectedSubjectId');
+        const selectedSubjectName = localStorage.getItem('selectedSubjectName')
+        if (selectedSubjectId) {
+            filterTable(selectedSubjectId, selectedSubjectName);
+        }
+    }
+
+    // Attach event listener to run after DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', function() {
+
+        document.addEventListener('DOMContentLoaded', loadPreviousSubject);  // Add loadPreviousSubject to the DOMContentLoaded event
+
+        // Add click event listeners to subject cards
+        document.querySelectorAll('.subject-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const subjectId = card.getAttribute('data-subject-id');
+                const subjectName = card.getAttribute('data-subject-name');  // Added
+                filterTable(subjectId, subjectName);
+            });
+        });
+
+        // Add click event listeners to class dropdown toggles
+        document.querySelectorAll('.class-dropdown-toggle').forEach(toggle => {
+            toggle.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent event bubbling
+                const dropdownMenu = toggle.nextElementSibling;
+                dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+            });
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.class-dropdown-menu').forEach(menu => {
+                menu.style.display = 'none';
+            });
+        });
+
+        // Add click event listeners to class dropdown links
+        document.querySelectorAll('.class-dropdown-menu a').forEach(link => {
+            link.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const classId = link.getAttribute('data-class-id');
+                const teacherId = link.getAttribute('data-teacher-id');
+                const className = link.textContent.trim();
+
+                // Get the teacher's name from the row
+                const teacherName = link.closest('tr').getAttribute('data-teacher-name');
+
+                console.log('Clicked link attributes:', {
+                    classId,
+                    teacherId,
+                    teacherName
+                });
+
+                if (!classId || !teacherId) {
+                    alert('Class or Teacher ID is missing. Please check the data attributes.');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/main/update-teacher-class/${teacherId}/${classId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken,
+                        },
+                        body: JSON.stringify({}),
+                    });
+
+                    console.log('Response status:', response.status);
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('Response data:', data);
+                        alert(`${teacherName} reassigned to class ${className} successfully!`);
+
+                        localStorage.removeItem('selectedSubjectId') //clear the data
+                        localStorage.removeItem('selectedSubjectName'); // Clear the previous subject name
+
+                        location.reload();
+                    } else {
+                        const errorData = await response.json();
+                        console.error('Error response:', errorData);
+                        alert('Failed to reassign class. ' + (errorData.message || ''));
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred: ' + error.message);
+                }
+            });
+        });
+
+        // Attach event listner such that once the content has been loaded, it runs loadPreviously selected functions
+        const searchInput = document.getElementById('teacher-search');
+        const tableRows = document.querySelectorAll('#teacher-table tbody tr');
+
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase(); // Convert search term to lowercase
+
+            tableRows.forEach(row => {
+                const teacherName = row.getAttribute('data-teacher-name').toLowerCase(); // teacher's name
+
+                if (teacherName.includes(searchTerm)) {
+                    row.style.display = ''; // Show the row if it contains the search term
+                } else {
+                    row.style.display = 'none'; // Hide the row if it doesn't
+                }
+            });
+        });
+        loadPreviousSubject(); //Call function if it had been set up to filter with specific attributes
+    });
+</script>
 {% endblock content %}

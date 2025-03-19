@@ -12,7 +12,7 @@
     <style>
         /* Background settings */
         body {
-            background-image: url("{% static 'assets/images/logo3.jpg' %}");
+            background-image: url("{% static 'assets/images/zas.jpg' %}");
             background-color: #C0C3B3; /* Set background color to #C0C3B3 */
             height: 100vh; /* Full viewport height */
             display: flex;
@@ -20,6 +20,8 @@
             align-items: center;
             margin: 0;
             padding: 0;
+            background-size: cover; /* Ensure the background image covers the entire screen */
+            background-position: center; /* Center the background image */
         }
     
         /* Form container settings */
@@ -54,7 +56,7 @@
                 <div class="row w-100 mx-0">
                     <div class="col-lg-4 col-md-6 col-sm-8 auth-form-light">
                         <div class="auth-form-light text-left py-5 px-4 px-sm-5">
-                            <h4>New here?</h4>
+                            <h4>SCHOOL MANAGEMENT PORTAL</h4>
                             <h6 class="fw-light">Signing up is easy. It only takes a few steps.</h6>
 
                             <!-- Check for non-field errors -->
@@ -69,7 +71,7 @@
 
                                 <!-- Username field -->
                                 <div class="form-group mb-3">
-                                    <input type="text" class="form-control form-control-lg" id="username" name="username" placeholder="Enter Username" required>
+                                    <input type="text" class="form-control form-control-lg" id="username" name="username" placeholder="Username" required>
                                     {% if form.username.errors %}
                                         <div class="text-danger">
                                             {{ form.username.errors }}
@@ -79,7 +81,7 @@
 
                                 <!-- Email field -->
                                 <div class="form-group mb-3">
-                                    <input type="email" class="form-control form-control-lg" id="email" name="email" placeholder="Enter Email" required>
+                                    <input type="email" class="form-control form-control-lg" id="email" name="email" placeholder="Email" required>
                                     {% if form.email.errors %}
                                         <div class="text-danger">
                                             {{ form.email.errors }}
@@ -89,7 +91,7 @@
 
                                 <!-- Password fields -->
                                 <div class="form-group mb-3">
-                                    <input type="password" class="form-control form-control-lg" id="password1" name="password1" placeholder="Enter Password" required>
+                                    <input type="password" class="form-control form-control-lg" id="password1" name="password1" placeholder="Password (min. 8 characters)" required>
                                     {% if form.password1.errors %}
                                         <div class="text-danger">
                                             {{ form.password1.errors }}
@@ -109,6 +111,7 @@
                                 <!-- Role field -->
                                 <div class="form-group mb-3">
                                     <select id="role" name="role" class="form-select form-control-lg" required>
+                                        <option value="" disabled selected>Select your role</option>
                                         <option value="admin">Admin</option>
                                         <option value="teacher">Teacher</option>
                                     </select>
